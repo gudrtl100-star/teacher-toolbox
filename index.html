@@ -24,6 +24,7 @@
   <div class="topbar-inner">
     <span class="brand">선생님 도구상자</span>
     <span class="spacer"></span>
+    <button class="icon-btn" id="privacyBtn" aria-label="학생 자료는 어떻게 다루나요"></button>
     <button class="icon-btn" id="themeBtn" aria-label="화면 밝기 전환"></button>
   </div>
 </header>
@@ -31,9 +32,9 @@
 <main class="wrap">
 
   <section class="hero">
-    <h1>수업과 행정,<br>손이 덜 가게.</h1>
-    <p><span>교실에서 반복되는 일을 하나씩 도구로 만들어 모았습니다.</span> <span>필요할 때 열어 쓰고, 아니면 닫으면 그만입니다.</span></p>
-    <p class="fineprint">설치도 회원가입도 없습니다</p>
+    <h1>교실에서 반복되는 일을<br>도구로 만들었습니다</h1>
+    <p><span>출결 점검, 자리 배치처럼 매번 손으로 하던 일입니다.</span> <span>필요할 때 열어서 쓰시면 됩니다.</span></p>
+    <p class="fineprint">설치 없음 · 회원가입 없음</p>
   </section>
 
   <section class="controls">
@@ -47,15 +48,24 @@
   <p class="list-label" id="listLabel" aria-live="polite"></p>
   <section id="list"></section>
 
-  <section class="privacy" aria-labelledby="privacyTitle">
+  <footer class="footer">
+    <p>현장에서 쓰다가 불편했던 일을 하나씩 도구로 만들어 모으고 있습니다.</p>
+    <p>필요한 도구가 있거나 잘못 동작하는 곳을 찾으셨다면 알려주세요.</p>
+    <p><button class="linkish" id="privacyLink">학생 자료는 어떻게 다루나요</button></p>
+  </footer>
+
+</main>
+
+<div class="scrim" id="scrim">
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"></div>
+</div>
+
+<!-- 첫 방문 때 한 번 띄우고, 이후에는 상단 방패 버튼이나 맨 아래 링크로 다시 봅니다 -->
+<template id="privacyTpl">
+  <div class="privacy">
     <div class="privacy-head">
-      <svg class="privacy-icon" width="26" height="26" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 2.8l7.2 2.7v6c0 4.5-3 8.3-7.2 9.7-4.2-1.4-7.2-5.2-7.2-9.7v-6z"/>
-        <path d="M8.9 11.9l2.2 2.2 4-4"/>
-      </svg>
       <div>
-        <h2 id="privacyTitle">학생 자료는 이 컴퓨터를 벗어나지 않습니다</h2>
+        <h2 id="sheetTitle">학생 자료는 이 컴퓨터를 벗어나지 않습니다</h2>
         <p><span>출결 파일을 올리든 학생 이름을 넣든, 모든 처리는 선생님 브라우저 안에서 끝납니다.</span> <span>자료를 보내지 않기로 정한 게 아니라, <b>보낼 코드 자체가 없습니다.</b></span></p>
       </div>
     </div>
@@ -85,18 +95,8 @@
     </ul>
 
     <p class="caution">다만 <b>여러 사람이 쓰는 컴퓨터</b>에서 학생 명단을 입력하셨다면, 도구 안의 &lsquo;전체 초기화&rsquo;를 한 번 눌러 주세요. 설정으로 남겨둔 명단까지 지워집니다.</p>
-  </section>
-
-  <footer class="footer">
-    <p>현장에서 쓰다가 불편했던 일을 하나씩 도구로 만들어 모으고 있습니다.</p>
-    <p>필요한 도구가 있거나 잘못 동작하는 곳을 찾으셨다면 알려주세요.</p>
-  </footer>
-
-</main>
-
-<div class="scrim" id="scrim">
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"></div>
-</div>
+  </div>
+</template>
 
 <script src="data/tools.js"></script>
 <script src="assets/app.js"></script>

@@ -393,6 +393,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .save-btn:active{transform:scale(.97);}
 .save-icon{font-size:18px;line-height:1;}
 .save-label{font-size:11px;font-weight:600;color:var(--g600);letter-spacing:-.1px;}
+
+/* 아카이브(선생님 도구상자)로 돌아가기 */
+.tb-home{display:inline-flex;align-items:center;gap:4px;padding:6px 10px 6px 7px;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:-.01em;color:var(--g600);text-decoration:none;transition:background-color .18s ease,color .18s ease,transform .12s ease-out;}
+.tb-home:hover{background:rgba(0,0,0,.05);color:var(--g800);}
+.tb-home:active{transform:scale(.97);}
+.tb-home svg{flex-shrink:0;}
+.tb-home-icon{width:40px;height:40px;padding:0;gap:0;justify-content:center;}
+#sidebar-title .tb-home{margin:-4px 0 10px -7px;}
 </style>
 </head>
 <body>
@@ -405,7 +413,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <div id="student-view">
   <!-- 모바일 전용 상단 헤더 (제목 + 설정) -->
   <div id="mobile-header">
-    <div style="width:40px;"></div>
+    <a class="tb-home tb-home-icon" href="../../index.html" aria-label="선생님 도구상자로 돌아가기"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>
     <div id="mobile-title">자리 <em>배치</em></div>
     <button id="mobile-gear" onclick="askPw()" aria-label="설정">⚙</button>
   </div>
@@ -413,6 +421,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <!-- 왼쪽 사이드바: 제목 + 컨트롤 (PC 전용) -->
   <aside id="sidebar">
     <div id="sidebar-title">
+      <a class="tb-home" href="../../index.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>도구상자</span></a>
       <h1>자리 <em>배치</em></h1>
     </div>
     <div id="sidebar-controls">

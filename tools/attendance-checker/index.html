@@ -319,6 +319,16 @@ footer .v { font-weight:700; color:var(--ink-2); }
 .dz-btn:active, .slot-btn:active, .rt-btn:active,
 .im-start:active, button.run:active { transform: scale(.97); }
 .help-fab:active { transform: scale(.94); }
+
+/* 아카이브(선생님 도구상자)로 돌아가기 */
+.tb-home { display:inline-flex; align-items:center; gap:4px; margin-bottom:14px;
+  padding:6px 10px 6px 7px; border-radius:9px;
+  font-size:13px; font-weight:600; letter-spacing:-.01em;
+  color:var(--i); text-decoration:none;
+  transition:background-color .18s ease, color .18s ease, transform .12s ease-out; }
+.tb-home:hover { background:rgba(0,0,0,.05); color:var(--ink); }
+.tb-home:active { transform:scale(.97); }
+.tb-home svg { flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -353,6 +363,7 @@ footer .v { font-weight:700; color:var(--ink-2); }
 <script>try{if(localStorage.getItem('ac_intro_hide')==='1'){document.getElementById('introOverlay').classList.add('hide');}}catch(e){}</script>
 <button class="help-fab" id="helpFab" aria-label="사용 안내" title="사용 안내">?</button>
 <div class="wrap">
+  <a class="tb-home" href="../../index.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>도구상자</span></a>
   <div id="viewInput">
     <div class="hero">
       <span class="badge">완전 오프라인 · 파일이 밖으로 나가지 않아요</span>

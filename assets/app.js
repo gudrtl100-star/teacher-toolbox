@@ -5,6 +5,7 @@
 
 const LS_FAV = 'ta_favs';
 const LS_THEME = 'ta_theme';
+const LS_PRIV = 'ta_privacy_hide';   /* 개인정보 안내를 다시 열지 않기 */
 const NEW_DAYS = 45;
 
 /* ─── 아이콘 ───────────────────────────────────────────────
@@ -62,6 +63,8 @@ const UI = {
   chevron: '<svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
   sun: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.4 4.4l1.6 1.6M18 18l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.4 19.6L6 18M18 6l1.6-1.6"/></svg>',
   moon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.3A8.5 8.5 0 0 1 9.7 4a8.5 8.5 0 1 0 10.3 10.3z"/></svg>',
+  shield: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8l7.2 2.7v6c0 4.5-3 8.3-7.2 9.7-4.2-1.4-7.2-5.2-7.2-9.7v-6z"/><path d="M8.9 11.9l2.2 2.2 4-4"/></svg>',
+  shieldLarge: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l7.2 2.7v6c0 4.5-3 8.3-7.2 9.7-4.2-1.4-7.2-5.2-7.2-9.7v-6z"/><path d="M8.9 11.9l2.2 2.2 4-4"/></svg>',
 };
 
 /* ─── 상태 ─────────────────────────────────────────────────── */
@@ -199,6 +202,30 @@ function openSheet(id, anchorEl) {
       <a class="btn btn-primary" href="${esc(t.path)}" target="_blank" rel="noopener">도구 열기</a>
     </div>`;
 
+  showSheet(anchorEl);
+}
+
+/* 개인정보 안내 — 첫 방문 때 한 번 뜨고, 그 뒤로는 상단 방패 버튼으로 봅니다 */
+function openPrivacy(anchorEl) {
+  const hide = load(LS_PRIV, false);
+  document.getElementById('sheet').innerHTML = `
+    <div class="sheet-icon">${UI.shieldLarge}</div>
+    ${document.getElementById('privacyTpl').innerHTML}
+    <div class="sheet-actions">
+      <label class="checkline">
+        <!-- autocomplete=off: 새로고침 때 브라우저가 옛 체크 상태를 되살려
+             저장값을 덮어쓰는 것을 막습니다 -->
+        <input type="checkbox" id="privHide" autocomplete="off"${hide ? ' checked' : ''}>
+        <span>다시 열지 않기</span>
+      </label>
+      <button class="btn btn-primary" data-close>확인했습니다</button>
+    </div>`;
+
+  showSheet(anchorEl);
+}
+
+/* 시트를 띄웁니다 — 누른 요소가 있으면 그 자리에서 자라나게 origin을 잡습니다 */
+function showSheet(anchorEl) {
   const scrim = document.getElementById('scrim');
   const sheet = document.getElementById('sheet');
 
@@ -237,8 +264,16 @@ function applyTheme(theme) {
 /* ─── 시작 ─────────────────────────────────────────────────── */
 function init() {
   document.getElementById('searchIcon').innerHTML = UI.search;
+  document.getElementById('privacyBtn').innerHTML = UI.shield;
   applyTheme(load(LS_THEME, matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
   render();
+
+  /* 처음 온 사람에게는 자료가 어디로 가는지 먼저 알립니다.
+     화면이 그려진 뒤에 떠야 갑작스럽지 않습니다. */
+  if (!load(LS_PRIV, false)) setTimeout(() => openPrivacy(null), 500);
+
+  document.getElementById('privacyBtn').addEventListener('click', e => openPrivacy(e.currentTarget));
+  document.getElementById('privacyLink').addEventListener('click', e => openPrivacy(e.currentTarget));
 
   document.getElementById('search').addEventListener('input', e => {
     state.query = e.target.value;
@@ -275,6 +310,10 @@ function init() {
 
   document.getElementById('scrim').addEventListener('click', e => {
     if (e.target.id === 'scrim' || e.target.closest('[data-close]')) closeSheet();
+  });
+
+  document.getElementById('scrim').addEventListener('change', e => {
+    if (e.target.id === 'privHide') save(LS_PRIV, e.target.checked);
   });
 
   document.getElementById('themeBtn').addEventListener('click', () => {
