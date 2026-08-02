@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>선생님 도구상자</title>
+<meta name="description" content="교실에서 반복되는 일을 도구로 만들어 모았습니다. 설치 없이 브라우저에서 열리고, 올린 자료는 컴퓨터를 벗어나지 않습니다.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230071e3' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='3.5' y='3.5' width='17' height='17' rx='4.6'/%3E%3Ccircle cx='12' cy='12' r='2.6'/%3E%3C/svg%3E">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/PretendardVariable.woff2" crossorigin>
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  /* 첫 페인트 전에 테마를 확정해 깜빡임을 없앱니다 */
+  try {
+    var t = JSON.parse(localStorage.getItem('ta_theme') || 'null');
+    document.documentElement.setAttribute('data-theme',
+      t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">선생님 도구상자</span>
+    <span class="spacer"></span>
+    <button class="icon-btn" id="themeBtn" aria-label="화면 밝기 전환"></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>수업과 행정,<br>손이 덜 가게.</h1>
+    <p><span>교실에서 반복되는 일을 하나씩 도구로 만들어 모았습니다.</span> <span>필요할 때 열어 쓰고, 아니면 닫으면 그만입니다.</span></p>
+    <p class="fineprint">설치도 회원가입도 없습니다</p>
+  </section>
+
+  <section class="controls">
+    <div class="search">
+      <span id="searchIcon"></span>
+      <input type="search" id="search" placeholder="도구 찾기" autocomplete="off" aria-label="도구 검색">
+    </div>
+    <div class="segments" id="segments" role="tablist" aria-label="분류"></div>
+  </section>
+
+  <p class="list-label" id="listLabel" aria-live="polite"></p>
+  <section id="list"></section>
+
+  <section class="privacy" aria-labelledby="privacyTitle">
+    <div class="privacy-head">
+      <svg class="privacy-icon" width="26" height="26" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2.8l7.2 2.7v6c0 4.5-3 8.3-7.2 9.7-4.2-1.4-7.2-5.2-7.2-9.7v-6z"/>
+        <path d="M8.9 11.9l2.2 2.2 4-4"/>
+      </svg>
+      <div>
+        <h2 id="privacyTitle">학생 자료는 이 컴퓨터를 벗어나지 않습니다</h2>
+        <p><span>출결 파일을 올리든 학생 이름을 넣든, 모든 처리는 선생님 브라우저 안에서 끝납니다.</span> <span>자료를 보내지 않기로 정한 게 아니라, <b>보낼 코드 자체가 없습니다.</b></span></p>
+      </div>
+    </div>
+
+    <ul>
+      <li>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
+        <div>
+          <b>자료를 받아 둘 서버가 없습니다</b>
+          <span>이곳은 파일을 보관하는 사이트가 아니라, 브라우저에서 그때그때 실행되는 프로그램입니다.</span>
+        </div>
+      </li>
+      <li>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
+        <div>
+          <b>인터넷을 꺼도 똑같이 동작합니다</b>
+          <span>믿기 어려우시면 와이파이를 끄고 도구를 열어보세요. 그대로 됩니다. 보낼 곳이 있었다면 멈췄을 겁니다.</span>
+        </div>
+      </li>
+      <li>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
+        <div>
+          <b>창을 닫으면 사라집니다</b>
+          <span>즐겨찾기 같은 설정만 이 브라우저에 남습니다. 올린 파일과 학생 이름은 남지 않습니다.</span>
+        </div>
+      </li>
+    </ul>
+
+    <p class="caution">다만 <b>여러 사람이 쓰는 컴퓨터</b>에서 학생 명단을 입력하셨다면, 도구 안의 &lsquo;전체 초기화&rsquo;를 한 번 눌러 주세요. 설정으로 남겨둔 명단까지 지워집니다.</p>
+  </section>
+
+  <footer class="footer">
+    <p>현장에서 쓰다가 불편했던 일을 하나씩 도구로 만들어 모으고 있습니다.</p>
+    <p>필요한 도구가 있거나 잘못 동작하는 곳을 찾으셨다면 알려주세요.</p>
+  </footer>
+
+</main>
+
+<div class="scrim" id="scrim">
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"></div>
+</div>
+
+<script src="data/tools.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
