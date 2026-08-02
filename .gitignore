@@ -21,6 +21,10 @@ desktop.ini
 # ── 백업 폴더 (내 컴퓨터에만 두면 됩니다) ──
 _backup_*/
 
+# ── 이 컴퓨터에서만 쓰는 설정 (Claude Code) ──
+.claude/settings.local.json
+.claude/launch.json
+
 # ── 임시 파일 ──
 *.tmp
 *.bak
