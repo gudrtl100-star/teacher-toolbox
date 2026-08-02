@@ -70,5 +70,7 @@ docs/               기획·운영 문서
 
 ## 배포
 
-`docs/DEPLOY.md` 참고. GitHub Pages, `main` 브랜치 루트.
+공개 주소: https://gudrtl100-star.github.io/teacher-toolbox/
+저장소: `gudrtl100-star/teacher-toolbox` (Public), GitHub Pages, `main` 브랜치 루트.
+고친 뒤 `git add . && git commit -m "..." && git push` 하면 1~2분 뒤 반영됩니다. 자세한 내용은 `docs/DEPLOY.md`.
 **공개 저장소이므로 학생 자료(엑셀·PDF·한글)를 커밋하면 안 됩니다.** `.gitignore`가 해당 확장자를 막고 있습니다.

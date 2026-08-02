@@ -3,12 +3,14 @@
 교사 업무에 바로 쓰는 웹 도구를 한곳에 모은 아카이브입니다.
 설치·회원가입 없이 링크만 열면 동작하고, 올린 파일과 학생 이름은 브라우저 밖으로 나가지 않습니다.
 
+**→ https://gudrtl100-star.github.io/teacher-toolbox/**
+
 ## 지금 들어 있는 도구
 
-| 도구 | 하는 일 | 위치 |
+| 도구 | 하는 일 | 바로 열기 |
 |---|---|---|
-| 🪑 학생 자리 배치 | 배치 규칙을 지키며 자리를 뽑고 좌석표를 이미지로 저장 | `tools/seating-chart/` |
-| 📋 월 출결 점검기 | 나이스 출결 파일들을 교차 대조해 어긋난 곳을 찾기 | `tools/attendance-checker/` |
+| 🪑 학생 자리 배치 | 배치 규칙을 지키며 자리를 뽑고 좌석표를 이미지로 저장 | [열기](https://gudrtl100-star.github.io/teacher-toolbox/tools/seating-chart/index.html) |
+| 📋 월 출결 점검기 | 나이스 출결 파일들을 교차 대조해 어긋난 곳을 찾기 | [열기](https://gudrtl100-star.github.io/teacher-toolbox/tools/attendance-checker/index.html) |
 
 ## 폴더 구조
 

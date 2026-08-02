@@ -64,7 +64,8 @@ tools/<slug>/index.html   (도구 하나 = 독립 파일. 아카이브와 코드
       - 점검 결과가 백업본과 같은지
       - 결과표의 '상태' 칸이 두 줄로 나뉘어 읽기 편한지
       - **'엑셀로 저장'을 눌러 셀에 `<br>` 같은 글자가 없는지**
-- [ ] GitHub Pages 배포 → 공개 주소 확보 ([DEPLOY.md](DEPLOY.md))
+- [x] GitHub Pages 배포 → https://gudrtl100-star.github.io/teacher-toolbox/ (2026-08-02, [DEPLOY.md](DEPLOY.md))
+- [x] 자리 배치 도구의 외부 CDN 제거 — 엑셀 라이브러리를 파일 안으로 (사이트 전체 외부 요청 0건)
 - [ ] 두 도구에 "도구상자로 돌아가기" 링크 추가
 - [ ] 학교 컴퓨터·크롬·엣지에서 열어보고 깨지는 곳 확인
 
