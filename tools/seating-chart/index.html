@@ -218,9 +218,8 @@ html,body{height:100%;font-family:'Pretendard Variable',-apple-system,BlinkMacSy
 .field-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
 .field{display:flex;flex-direction:column;gap:5px;}
 .field label{font-size:11px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.03em;}
-.field input,.field select,.field textarea{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rsm);color:var(--black);padding:8px 11px;font-size:13px;font-family:inherit;outline:none;transition:border-color .14s;min-width:64px;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);background:var(--white);}
-.field textarea{resize:vertical;line-height:1.5;min-height:76px;white-space:pre;overflow-x:auto;}
+.field input,.field select{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rsm);color:var(--black);padding:8px 11px;font-size:13px;font-family:inherit;outline:none;transition:border-color .14s;min-width:64px;}
+.field input:focus,.field select:focus{border-color:var(--blue);background:var(--white);}
 .field input[type=number]{width:72px;}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:980px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .14s;letter-spacing:-.1px;}
 .btn-blue{background:var(--blue);color:#fff;}.btn-blue:hover{background:var(--blue-h);}
@@ -549,20 +548,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <button class="btn btn-blue" onclick="addName()">추가</button>
     </div>
 
-    <!-- 엑셀에서 표를 그대로 복사해 붙여넣는 칸 (탭·쉼표 모두 읽습니다) -->
-    <div class="field" style="margin-top:14px;">
-      <label>엑셀에서 복사해 붙여넣기</label>
-      <textarea id="bulk-in" rows="4" spellcheck="false"
-        placeholder="엑셀에서 명단을 드래그해 복사(Ctrl+C)한 뒤 여기에 붙여넣으세요(Ctrl+V)&#10;&#10;1	김하나	남&#10;2	이두리	여&#10;3	박세찬	남"></textarea>
-    </div>
-    <button class="btn btn-blue" style="width:100%;margin-top:8px;" onclick="addBulk()">붙여넣은 명단 넣기</button>
-    <p style="font-size:11px;color:var(--g400);text-align:center;margin-top:6px;">번호·이름·성별(남/여) 순 · 이름만 있어도 됩니다</p>
-
-    <div class="drop-zone" id="drop-zone" style="margin-top:14px;" onclick="document.getElementById('file-in').click()">
-      <input type="file" id="file-in" accept=".csv,.txt" style="display:none" onchange="handleFile(event)">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-in').click()">
+      <input type="file" id="file-in" accept=".xlsx,.xls,.csv,.txt" style="display:none" onchange="handleFile(event)">
       <div class="drop-icon">📄</div>
-      <p style="font-size:13px;font-weight:600;color:var(--black);margin-bottom:3px;">CSV 파일로 넣기</p>
-      <p style="font-size:11px;color:var(--g400);">번호·이름·성별(남/여) 순 · .csv · 클릭하거나 끌어다 놓으세요</p>
+      <p style="font-size:13px;font-weight:600;color:var(--black);margin-bottom:3px;">엑셀 / CSV 업로드</p>
+      <p style="font-size:11px;color:var(--g400);">번호·이름·성별(남/여) 순 · .xlsx .csv · 클릭하거나 끌어다 놓으세요</p>
     </div>
     <div class="divider"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -1187,13 +1177,22 @@ function refreshSelects(){
   refreshDistRuleList();refreshFixedRuleList();refreshFixGrid();
 }
 
-/* ── 붙여넣기로 명단 넣기 ── */
-function addBulk(){
-  const el=document.getElementById('bulk-in');
-  const txt=(el.value||'').trim();
-  if(!txt){ toast('붙여넣은 내용이 없어요','warn'); return; }
-  try{ parseCSV(txt); el.value=''; }
-  catch(err){ toast('명단을 읽지 못했어요. 번호·이름·성별 순인지 확인해주세요.','warn'); }
+/* ── 엑셀 읽기 도구 ──
+   같은 폴더의 xlsx-lite.js 를 엑셀 파일을 올린 순간에만 불러옵니다.
+   파일 안에 넣어두면 도구가 8배 무거워져 여는 데만 한참 걸립니다.
+   외부에서 받아오는 게 아니라 도구 옆에 있는 파일이라, 인터넷이 없어도 됩니다. */
+let xlsxLoading=null;
+function loadXlsxLib(){
+  if(window.XLSX) return Promise.resolve();
+  if(xlsxLoading) return xlsxLoading;
+  xlsxLoading=new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='xlsx-lite.js';
+    s.onload=()=>{ window.XLSX ? resolve() : reject(new Error('XLSX 없음')); };
+    s.onerror=()=>{ xlsxLoading=null; reject(new Error('불러오기 실패')); };
+    document.head.appendChild(s);
+  });
+  return xlsxLoading;
 }
 
 /* ── 파일 업로드 ── */
@@ -1206,9 +1205,14 @@ function handleFile(e){
     r.onload=ev=>{ try{parseCSV(ev.target.result);}catch(err){toast('파일 읽기 오류','warn');} };
     r.readAsText(f,'utf-8');
   } else {
-    // 엑셀 파일은 읽지 않습니다. 라이브러리(862KB)를 넣으면 도구가 8배 무거워져,
-    // 학교 인터넷에서 여는 데만 한참 걸립니다. 붙여넣기가 더 빠릅니다.
-    toast('엑셀 파일은 위쪽 붙여넣기 칸을 써주세요. 엑셀에서 표를 복사(Ctrl+C)해 붙여넣으면(Ctrl+V) 됩니다.','warn');
+    if(!window.XLSX) toast('엑셀을 읽는 중이에요…');
+    loadXlsxLib().then(()=>{
+      const r=new FileReader();
+      r.onload=ev=>{ try{parseXL(ev.target.result);}catch(err){toast('파일 읽기 오류','warn');} };
+      r.readAsArrayBuffer(f);
+    }).catch(()=>{
+      toast('엑셀 읽기 도구를 불러오지 못했어요. 엑셀에서 CSV로 저장해 올려주세요.','warn');
+    });
   }
 }
 // 성별 문자열 → 'M'/'F'/null
@@ -1239,6 +1243,28 @@ function parseCSV(txt){
       // 첫 칸이 숫자가 아니면 그게 이름입니다 (이름만 / 이름 · 성별)
       const name=(p[0]||'').trim().replace(/^["']|["']$/g,'');
       const gender=parseGender(p[1]);
+      if(name&&name.length<=10&&isNaN(+name)&&!isHeaderWord(name)) rows.push({num:null,name,gender});
+    }
+  });
+  bulkAdd(rows);
+}
+function parseXL(buf){
+  const wb=XLSX.read(buf,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const data=XLSX.utils.sheet_to_json(ws,{header:1});
+  const rows=[];
+  data.forEach(row=>{
+    if(!row||!row.length)return;
+    const numCandidate=parseInt(row[0]);
+    if(!isNaN(numCandidate)&&row.length>=2){
+      // 번호 · 이름 · 성별
+      const name=String(row[1]||'').trim();
+      const gender=parseGender(row[2]);
+      if(name&&name.length<=10&&!isHeaderWord(name)) rows.push({num:numCandidate,name,gender});
+    } else {
+      // 첫 칸이 숫자가 아니면 그게 이름입니다 (이름만 / 이름 · 성별)
+      const name=String(row[0]||'').trim();
+      const gender=parseGender(row[1]);
       if(name&&name.length<=10&&isNaN(+name)&&!isHeaderWord(name)) rows.push({num:null,name,gender});
     }
   });
