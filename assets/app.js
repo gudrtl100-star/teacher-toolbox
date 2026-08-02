@@ -180,6 +180,8 @@ function openSheet(id, anchorEl) {
   const t = TOOLS.find(t => t.id === id);
   if (!t) return;
 
+  prefetchTool(id);   /* 상세를 열었다면 곧 도구도 열 참입니다 */
+
   const meta = [
     catLabel(t.category),
     t.version ? `버전 ${t.version}` : '',
@@ -252,6 +254,23 @@ function closeSheet() {
   if (lastAnchor && document.contains(lastAnchor)) lastAnchor.focus?.();
 }
 
+/* ─── 미리 받아두기 ────────────────────────────────────────
+   도구 파일이 큽니다(수백 KB). 목록에서 마우스를 올리거나 손가락을
+   대는 순간 미리 받아두면, 정작 누를 때는 기다림이 없습니다.
+   외부로 나가는 요청이 아니라 같은 저장소 안의 파일입니다. */
+const prefetched = new Set();
+
+function prefetchTool(id) {
+  const t = TOOLS.find(t => t.id === id);
+  if (!t || prefetched.has(t.path)) return;
+  prefetched.add(t.path);
+  const link = document.createElement('link');
+  link.rel = 'prefetch';
+  link.as = 'document';
+  link.href = t.path;
+  document.head.appendChild(link);
+}
+
 /* ─── 테마 ─────────────────────────────────────────────────── */
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -289,7 +308,17 @@ function init() {
     renderList();
   });
 
-  document.getElementById('list').addEventListener('click', e => {
+  /* 누르기 직전 신호(마우스 올림·손가락 댐)에 미리 받아둡니다 */
+  const list = document.getElementById('list');
+  const onIntent = e => {
+    const row = e.target.closest('.row');
+    if (row) prefetchTool(row.dataset.id);
+  };
+  list.addEventListener('pointerover', onIntent);
+  list.addEventListener('touchstart', onIntent, { passive: true });
+  list.addEventListener('focusin', onIntent);
+
+  list.addEventListener('click', e => {
     const star = e.target.closest('[data-fav]');
     if (star) {
       e.preventDefault();
