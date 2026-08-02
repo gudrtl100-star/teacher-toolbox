@@ -94,6 +94,63 @@ body { font-family: 'Pretendard Variable', -apple-system, 'Apple SD Gothic Neo',
 | 본문 | 0.875rem | 400 | 1.5 | `-0.006em` |
 | 캡션 | 0.75rem | 500 | 1.4 | `+0.01em` |
 
+### 줄바꿈 — 읽다가 걸리는 자리에서 줄이 바뀌지 않게
+
+한국어 문장을 그냥 흘려 쓰면 브라우저가 **아무 데서나** 줄을 바꿉니다. "여러 사람이 쓰는 / 컴퓨터라면"처럼 말 중간이 갈라지면 한 번에 안 읽히고, 읽는 사람은 이유도 모른 채 답답해합니다. 아래 다섯 가지를 지킵니다.
+
+**1. 어절은 쪼개지 않습니다** — `body`에 한 번만 걸면 됩니다.
+
+```css
+body { word-break: keep-all; overflow-wrap: break-word; }
+```
+
+`keep-all`이 없으면 "필요 없으면"이 "필요 없 / 으면"으로 갈라집니다. 다만 긴 영문·주소는 넘치지 않게 `break-word`로 풀어 줍니다.
+
+**2. 문장은 통째로 넘깁니다** — 한 문단에 문장이 둘 이상이면 문장마다 `<span>`으로 감쌉니다.
+
+```html
+<p class="sentences">
+  <span>보낼 코드 자체가 없습니다.</span>
+  <span>인터넷을 꺼도 그대로 됩니다.</span>
+</p>
+```
+
+```css
+.sentences > span { display: inline-block; }
+```
+
+`inline-block`이라 문장이 한 줄에 다 들어가면 나란히 붙고, 자리가 모자라면 **문장째** 다음 줄로 갑니다. 화면 폭이 얼마든 문장 중간이 갈라지지 않습니다.
+
+**3. 갈라지면 뜻이 흐려지는 구는 묶습니다.**
+
+```html
+<span class="nowrap">3학년 5반</span>
+```
+
+```css
+.nowrap { white-space: nowrap; }
+```
+
+날짜(`05/06`), 학반, 숫자+단위(`3건`), 버튼 이름(`전체 초기화`)처럼 **한 덩어리로 읽히는 것**에만 씁니다. 긴 문장에 걸면 화면 밖으로 넘칩니다.
+
+**4. 마지막 줄에 한 단어만 남지 않게.**
+
+```css
+p, li { text-wrap: pretty; }
+```
+
+**5. 제목은 줄 길이를 비슷하게** — 큰 글씨일수록 들쭉날쭉이 눈에 띕니다.
+
+```css
+h1, h2 { text-wrap: balance; }
+```
+
+제목을 반드시 특정 위치에서 끊어야 하면 `<br>`을 직접 넣되, **좁은 화면에서도 어색하지 않은지** 확인합니다.
+
+> **한 줄에 몇 자가 좋은가**: 한글은 **한 줄 25~40자**가 편합니다. 시트·팝업은 `max-width: 460px` 정도면 자연히 그 범위에 들어옵니다. 문단이 화면 전체 폭으로 퍼지면 다음 줄 첫 글자를 찾느라 눈이 헤맵니다.
+
+> **확인하는 법**: 창 너비를 줄여 가며 줄이 어디서 끊기는지 봅니다. 말 중간에서 끊기면 문장을 더 짧게 쓰거나 `.sentences`로 감쌉니다. **글이 길어서 생긴 문제를 CSS로 막으려 하지 마세요.** 대개는 문장을 줄이는 게 답입니다.
+
 ### 모션 — 누르는 순간 반응합니다
 
 - 버튼은 **누를 때**(`:active`) 반응합니다. 떼고 나서가 아닙니다. `transform: scale(.97)`, 100ms
@@ -130,10 +187,30 @@ body { font-family: 'Pretendard Variable', -apple-system, 'Apple SD Gothic Neo',
 
 ## 아카이브로 돌아가는 링크
 
-도구 화면 어딘가에 넣어두면 좋습니다.
+도구 **좌상단**에 넣습니다. 링크만 받아 도구에 바로 들어온 선생님도 다른 도구가 있다는 걸 알게 됩니다. 화살표는 이모지가 아니라 선 아이콘입니다.
 
 ```html
-<a href="../../index.html" style="font-size:13px;color:#8b95a1">← 도구상자</a>
+<a class="tb-home" href="../../index.html">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+  <span>도구상자</span>
+</a>
+```
+
+```css
+.tb-home { display:inline-flex; align-items:center; gap:4px;
+  padding:6px 10px 6px 7px; border-radius:9px;
+  font-size:13px; font-weight:600; letter-spacing:-.01em;
+  color:var(--t2); text-decoration:none;
+  transition:background-color .18s ease, color .18s ease, transform .12s ease-out; }
+.tb-home:hover  { background:rgba(0,0,0,.05); color:var(--t1); }
+.tb-home:active { transform:scale(.97); }
+```
+
+모바일에서 제목이 가운데 정렬이라면 **아이콘만** 남기고 폭을 고정해 정렬을 유지합니다(자리 배치 도구가 이 방식입니다).
+
+```css
+.tb-home-icon { width:40px; height:40px; padding:0; gap:0; justify-content:center; }
 ```
 
 ## 만들기 전 점검

@@ -32,8 +32,7 @@
 <main class="wrap">
 
   <section class="hero">
-    <h1>교실에서 반복되는 일을<br>도구로 만들었습니다</h1>
-    <p><span>출결 점검, 자리 배치처럼 매번 손으로 하던 일입니다.</span> <span>필요할 때 열어서 쓰시면 됩니다.</span></p>
+    <h1>학교에서 반복되는 일을<br>도구로 만들었습니다</h1>
     <p class="fineprint">설치 없음 · 회원가입 없음</p>
   </section>
 
@@ -63,38 +62,27 @@
 <!-- 첫 방문 때 한 번 띄우고, 이후에는 상단 방패 버튼이나 맨 아래 링크로 다시 봅니다 -->
 <template id="privacyTpl">
   <div class="privacy">
-    <div class="privacy-head">
-      <div>
-        <h2 id="sheetTitle">학생 자료는 이 컴퓨터를 벗어나지 않습니다</h2>
-        <p><span>출결 파일을 올리든 학생 이름을 넣든, 모든 처리는 선생님 브라우저 안에서 끝납니다.</span> <span>자료를 보내지 않기로 정한 게 아니라, <b>보낼 코드 자체가 없습니다.</b></span></p>
-      </div>
-    </div>
+    <h2 id="sheetTitle">학생 자료는<br>이 컴퓨터 안에만 있습니다</h2>
+    <p class="lead sentences"><span>올린 파일도, 입력한 학생 이름도</span> <span>밖으로 나가지 않습니다.</span></p>
 
     <ul>
       <li>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
         <div>
-          <b>자료를 받아 둘 서버가 없습니다</b>
-          <span>이곳은 파일을 보관하는 사이트가 아니라, 브라우저에서 그때그때 실행되는 프로그램입니다.</span>
+          <b>저장하지 않습니다</b>
+          <span class="sentences"><span>창을 닫으면 사라집니다.</span></span>
         </div>
       </li>
       <li>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
         <div>
-          <b>인터넷을 꺼도 똑같이 동작합니다</b>
-          <span>믿기 어려우시면 와이파이를 끄고 도구를 열어보세요. 그대로 됩니다. 보낼 곳이 있었다면 멈췄을 겁니다.</span>
-        </div>
-      </li>
-      <li>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
-        <div>
-          <b>창을 닫으면 사라집니다</b>
-          <span>즐겨찾기 같은 설정만 이 브라우저에 남습니다. 올린 파일과 학생 이름은 남지 않습니다.</span>
+          <b>보내지 않습니다</b>
+          <span class="sentences"><span>보낼 코드 자체가 없습니다.</span> <span>인터넷을 꺼도 그대로 됩니다.</span></span>
         </div>
       </li>
     </ul>
 
-    <p class="caution">다만 <b>여러 사람이 쓰는 컴퓨터</b>에서 학생 명단을 입력하셨다면, 도구 안의 &lsquo;전체 초기화&rsquo;를 한 번 눌러 주세요. 설정으로 남겨둔 명단까지 지워집니다.</p>
+    <p class="caution sentences"><span>여러 사람이 쓰는 컴퓨터라면</span> <span>도구 안 &lsquo;전체 초기화&rsquo;를 눌러 주세요.</span></p>
   </div>
 </template>
 
