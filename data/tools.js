@@ -32,7 +32,7 @@ const TOOLS = [
     tags: ['자리', '좌석표', '제비뽑기', '학급운영', '이미지 저장'],
     icon: 'seating',
     path: 'tools/seating-chart/index.html',
-    version: '1.0.6',
+    version: '1.1.0',
     added: '2026-07-31',
     updated: '2026-08-02',
     status: 'stable',

@@ -394,6 +394,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .save-icon{font-size:18px;line-height:1;}
 .save-label{font-size:11px;font-weight:600;color:var(--g600);letter-spacing:-.1px;}
 
+/* 선 아이콘 — 글자와 나란히 놓이게. 버튼이 flex 면 gap 이 알아서 띄웁니다 */
+.ico{flex-shrink:0;vertical-align:-.16em;}
+.save-icon .ico,.drop-icon .ico,.pw-icon .ico{vertical-align:middle;}
+button .ico{pointer-events:none;}
+
 /* 아카이브(선생님 도구상자)로 돌아가기 */
 .tb-home{display:inline-flex;align-items:center;gap:4px;padding:6px 10px 6px 7px;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:-.01em;color:var(--g600);text-decoration:none;transition:background-color .18s ease,color .18s ease,transform .12s ease-out;}
 .tb-home:hover{background:rgba(0,0,0,.05);color:var(--g800);}
@@ -415,7 +420,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div id="mobile-header">
     <a class="tb-home tb-home-icon" href="../../index.html" aria-label="선생님 도구상자로 돌아가기"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>
     <div id="mobile-title">자리 <em>배치</em></div>
-    <button id="mobile-gear" onclick="askPw()" aria-label="설정">⚙</button>
+    <button id="mobile-gear" onclick="askPw()" aria-label="설정"><span data-ico="gear" data-ico-size="19"></span></button>
   </div>
 
   <!-- 왼쪽 사이드바: 제목 + 컨트롤 (PC 전용) -->
@@ -431,14 +436,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       </div>
       <button class="cta" id="shuffle-btn" onclick="startShuffle()">자리 뽑기</button>
       <div id="reveal-status"></div>
-      <button class="side-btn" id="swap-btn" onclick="toggleSwapMode()">🔁 자리 바꾸기</button>
+      <button class="side-btn" id="swap-btn" onclick="toggleSwapMode()"><span data-ico="swap" data-ico-size="18"></span> 자리 바꾸기</button>
       <div id="save-btns">
         <button class="save-btn" onclick="saveImage('student')" title="학생용 저장">
-          <span class="save-icon">🎓</span>
+          <span class="save-icon"><span data-ico="student" data-ico-size="20"></span></span>
           <span class="save-label">학생용 저장</span>
         </button>
         <button class="save-btn" onclick="saveImage('teacher')" title="교사용 저장 (좌우반전)">
-          <span class="save-icon">📋</span>
+          <span class="save-icon"><span data-ico="teacher" data-ico-size="20"></span></span>
           <span class="save-label">교사용 저장</span>
         </button>
       </div>
@@ -463,18 +468,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <button class="cta" onclick="startShuffle()">자리 뽑기</button>
     </div>
     <div id="mobile-dock-sub">
-      <button id="mdock-swap" onclick="toggleSwapMode()">🔁 바꾸기</button>
-      <button onclick="saveImage('student')">🎓 학생용</button>
-      <button onclick="saveImage('teacher')">📋 교사용</button>
+      <button id="mdock-swap" onclick="toggleSwapMode()"><span data-ico="swap" data-ico-size="16"></span> 바꾸기</button>
+      <button onclick="saveImage('student')"><span data-ico="student" data-ico-size="16"></span> 학생용</button>
+      <button onclick="saveImage('teacher')"><span data-ico="teacher" data-ico-size="16"></span> 교사용</button>
     </div>
   </div>
 </div>
-<button id="gear-btn" onclick="askPw()" title="관리자">⚙</button>
+<button id="gear-btn" onclick="askPw()" title="관리자"><span data-ico="gear" data-ico-size="19"></span></button>
 
 <!-- PW MODAL -->
 <div id="pw-modal">
   <div class="pw-card">
-    <div class="pw-icon">🔒</div>
+    <div class="pw-icon"><span data-ico="lock" data-ico-size="26"></span></div>
     <h3>관리자 접근</h3><p>비밀번호를 입력하세요</p>
     <input class="pw-input" id="pw-in" type="password" maxlength="20" placeholder="• • • •" onkeydown="if(event.key==='Enter')checkPw()">
     <div class="pw-err" id="pw-err"></div>
@@ -489,7 +494,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
  <div class="admin-sheet">
   <div class="sheet-head">
     <div class="sheet-head-left"><h2>교실 설정</h2><p>선생님만 볼 수 있어요</p></div>
-    <button class="x-btn" onclick="closeAdmin()">✕</button>
+    <button class="x-btn" onclick="closeAdmin()"><span data-ico="close" data-ico-size="18"></span></button>
   </div>
   <div class="seg-wrap">
     <div class="seg">
@@ -515,7 +520,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <!-- 짝 배치 토글 -->
     <div class="toggle-list" style="margin-bottom:16px;">
       <div class="toggle-row">
-        <div class="toggle-info"><div class="t-title">👫 짝 배치</div><div class="t-sub">2열씩 짝지어 붙이고, 짝 사이는 벌어져요 (분단 느낌)</div></div>
+        <div class="toggle-info"><div class="t-title"><span data-ico="pair" data-ico-size="17"></span> 짝 배치</div><div class="t-sub">2열씩 짝지어 붙이고, 짝 사이는 벌어져요 (분단 느낌)</div></div>
         <label class="sw"><input type="checkbox" id="s-pair" onchange="togglePair(this.checked)"><div class="sw-track"></div></label>
       </div>
     </div>
@@ -523,9 +528,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div id="pair-gender-box" style="display:none;background:var(--g50);border:1px solid var(--g100);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;">
       <div class="sec-eye" style="margin-bottom:8px;">짝꿍 성별 방식</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="pair-g-btn on" data-pg="random" onclick="setPairGender('random')">🎲 무작위</button>
-        <button class="pair-g-btn" data-pg="mixed" onclick="setPairGender('mixed')">👫 남녀 짝</button>
-        <button class="pair-g-btn" data-pg="same" onclick="setPairGender('same')">👬 같은 성별</button>
+        <button class="pair-g-btn on" data-pg="random" onclick="setPairGender('random')"><span data-ico="dice" data-ico-size="15"></span> 무작위</button>
+        <button class="pair-g-btn" data-pg="mixed" onclick="setPairGender('mixed')"><span data-ico="pair" data-ico-size="15"></span> 남녀 짝</button>
+        <button class="pair-g-btn" data-pg="same" onclick="setPairGender('same')"><span data-ico="pair" data-ico-size="15"></span> 같은 성별</button>
       </div>
       <p style="font-size:11px;color:var(--g400);margin-top:8px;line-height:1.5;" id="pair-gender-desc">짝꿍을 성별 상관없이 무작위로 정해요.</p>
     </div>
@@ -534,7 +539,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="stat-box"><div class="stat-n" id="stat-empty">0</div><div class="stat-l">빈 자리</div></div>
       <div class="stat-box"><div class="stat-n" id="stat-avail">30</div><div class="stat-l">배치 가능</div></div>
     </div>
-    <button class="btn btn-blue" style="width:100%;padding:15px;font-size:15px;margin-top:18px;" onclick="applyLayout()">💾 레이아웃 전체 저장</button>
+    <button class="btn btn-blue" style="width:100%;padding:15px;font-size:15px;margin-top:18px;" onclick="applyLayout()"><span data-ico="check" data-ico-size="17"></span> 레이아웃 전체 저장</button>
     <p style="font-size:11px;color:var(--g400);text-align:center;margin-top:8px;">행·열, 빈 자리, 짝 설정을 모두 저장해요</p>
   </div>
 
@@ -550,7 +555,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-in').click()">
       <input type="file" id="file-in" accept=".xlsx,.xls,.csv,.txt" style="display:none" onchange="handleFile(event)">
-      <div class="drop-icon">📄</div>
+      <div class="drop-icon"><span data-ico="file" data-ico-size="30"></span></div>
       <p style="font-size:13px;font-weight:600;color:var(--black);margin-bottom:3px;">엑셀 / CSV 업로드</p>
       <p style="font-size:11px;color:var(--g400);">번호·이름·성별(남/여) 순 · .xlsx .csv · 클릭하거나 끌어다 놓으세요</p>
     </div>
@@ -587,8 +592,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         <div class="field"><label>학생 1</label><select id="r-s1" style="width:110px;"></select></div>
         <div class="field"><label>규칙</label>
           <select id="r-type" style="width:110px;" onchange="onRuleTypeChange(this.value)">
-            <option value="together">💚 붙이기</option>
-            <option value="apart">🔴 떨어트리기</option>
+            <option value="together">붙이기</option>
+            <option value="apart">떨어트리기</option>
           </select>
         </div>
         <div class="field"><label>학생 2</label><select id="r-s2" style="width:110px;"></select></div>
@@ -611,8 +616,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
     <!-- 시점 토글 -->
     <div style="display:inline-flex;background:var(--g50);border-radius:980px;padding:3px;margin-bottom:12px;">
-      <button class="sim-view-btn on" id="fixv-student" onclick="setFixView('student')">🎓 학생 시점</button>
-      <button class="sim-view-btn" id="fixv-teacher" onclick="setFixView('teacher')">📋 교사 시점</button>
+      <button class="sim-view-btn on" id="fixv-student" onclick="setFixView('student')"><span data-ico="student" data-ico-size="15"></span> 학생 시점</button>
+      <button class="sim-view-btn" id="fixv-teacher" onclick="setFixView('teacher')"><span data-ico="teacher" data-ico-size="15"></span> 교사 시점</button>
     </div>
 
     <!-- 배치도 (클릭 가능) -->
@@ -634,13 +639,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="tab-pane" id="tp-sim">
     <div class="callout"><strong>시뮬레이션</strong> — 배치 결과를 미리 확인하세요. 마음에 들면 "이 배치로 공개"를 누르세요.</div>
     <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
-      <button class="btn btn-ghost" onclick="runSim()">🔄 다시 뽑기</button>
-      <button class="btn btn-blue" onclick="applyAndShow()">✓ 이 배치로 공개</button>
+      <button class="btn btn-ghost" onclick="runSim()"><span data-ico="refresh" data-ico-size="17"></span> 다시 뽑기</button>
+      <button class="btn btn-blue" onclick="applyAndShow()"><span data-ico="check" data-ico-size="17"></span> 이 배치로 공개</button>
       <span id="sim-ts" style="font-size:11px;color:var(--g400);margin-left:auto;align-self:center;"></span>
     </div>
     <div id="sim-view-seg" style="display:inline-flex;background:var(--g50);border-radius:980px;padding:3px;margin-bottom:14px;">
-      <button class="sim-view-btn on" id="simv-student" onclick="setSimView('student')">🎓 학생 시점</button>
-      <button class="sim-view-btn" id="simv-teacher" onclick="setSimView('teacher')">📋 교사 시점</button>
+      <button class="sim-view-btn on" id="simv-student" onclick="setSimView('student')"><span data-ico="student" data-ico-size="15"></span> 학생 시점</button>
+      <button class="sim-view-btn" id="simv-teacher" onclick="setSimView('teacher')"><span data-ico="teacher" data-ico-size="15"></span> 교사 시점</button>
     </div>
     <!-- 첫 화면과 동일한 칠판+그리드 구조 -->
     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;">
@@ -664,11 +669,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         <label class="sw"><input type="checkbox" id="s-cd" checked><div class="sw-track"></div></label>
       </div>
       <div class="toggle-row">
-        <div class="toggle-info"><div class="t-title">색종이 효과</div><div class="t-sub">배치 완료 후 🎊 효과</div></div>
+        <div class="toggle-info"><div class="t-title">색종이 효과</div><div class="t-sub">배치가 끝나면 색종이가 날립니다</div></div>
         <label class="sw"><input type="checkbox" id="s-cf" checked><div class="sw-track"></div></label>
       </div>
       <div class="toggle-row">
-        <div class="toggle-info"><div class="t-title">효과음</div><div class="t-sub">카운트다운·자리 확정·완료 사운드 🔊</div></div>
+        <div class="toggle-info"><div class="t-title">효과음</div><div class="t-sub">카운트다운·자리 확정·완료 소리</div></div>
         <label class="sw"><input type="checkbox" id="s-sound" checked><div class="sw-track"></div></label>
       </div>
     </div>
@@ -693,7 +698,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <!-- 이미지 저장 -->
     <div class="sec-eye" style="margin-bottom:8px;">자리배치표 저장</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-      <button class="btn btn-blue" onclick="saveImage('student')">🎓 학생용 저장</button>
+      <button class="btn btn-blue" onclick="saveImage('student')"><span data-ico="save" data-ico-size="17"></span> 학생용 저장</button>
       <button class="btn btn-ghost" onclick="saveImage('teacher')">교사용 저장 (좌우 반전)</button>
     </div>
     <p style="font-size:11px;color:var(--g400);margin-bottom:14px;">학생용은 칠판 방향 기준, 교사용은 교탁에서 바라보는 방향으로 저장돼요.</p>
@@ -701,8 +706,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <!-- 데이터 백업/복원 -->
     <div class="sec-eye" style="margin-bottom:8px;">데이터 백업 · 불러오기</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-      <button class="btn btn-blue" onclick="exportData()">⬇️ 백업 파일 저장</button>
-      <button class="btn btn-ghost" onclick="importData()">⬆️ 백업 불러오기</button>
+      <button class="btn btn-blue" onclick="exportData()"><span data-ico="down" data-ico-size="17"></span> 백업 파일 저장</button>
+      <button class="btn btn-ghost" onclick="importData()"><span data-ico="up" data-ico-size="17"></span> 백업 불러오기</button>
       <input type="file" id="import-in" accept=".json" style="display:none" onchange="handleImport(event)">
     </div>
     <p style="font-size:11px;color:var(--g400);margin-bottom:14px;">학생 명단·자리 설정을 파일로 저장해 두면 다른 기기에서도 불러올 수 있어요.</p>
@@ -740,6 +745,48 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 </div>
 
 <script>
+/* ══ 아이콘 ══
+   24×24 그리드 · stroke 1.5 · 둥근 끝단. 이모지는 OS마다 모양이 달라
+   학교 컴퓨터에서 네모로 깨지기도 합니다. 선 아이콘은 어디서나 같습니다.
+   stroke="currentColor" 라서 글자색을 따라갑니다. */
+const ICONS = {
+  gear:    '<path d="M4 6.5h16M4 12h16M4 17.5h16"/><circle cx="9" cy="6.5" r="2.1" fill="var(--white)"/><circle cx="15" cy="12" r="2.1" fill="var(--white)"/><circle cx="9" cy="17.5" r="2.1" fill="var(--white)"/>',
+  swap:    '<path d="M7.5 4.5v14M7.5 4.5L4.6 7.4M7.5 4.5l2.9 2.9"/><path d="M16.5 19.5v-14M16.5 19.5l-2.9-2.9M16.5 19.5l2.9-2.9"/>',
+  student: '<circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 20c0-3.6 3-6.5 6.6-6.5s6.6 2.9 6.6 6.5"/>',
+  teacher: '<rect x="5" y="4.2" width="14" height="16.3" rx="2.2"/><path d="M9.2 4.2V3h5.6v1.2"/><path d="M9 10.5h6M9 14.2h4"/>',
+  lock:    '<rect x="4.6" y="10.2" width="14.8" height="10.2" rx="2.6"/><path d="M8.1 10.2V7.4a3.9 3.9 0 0 1 7.8 0v2.8"/>',
+  unlock:  '<rect x="4.6" y="10.2" width="14.8" height="10.2" rx="2.6"/><path d="M8.1 10.2V7.4a3.9 3.9 0 0 1 7.5-1.4"/>',
+  close:   '<path d="M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6"/>',
+  save:    '<rect x="3.6" y="5" width="16.8" height="14" rx="2.6"/><circle cx="9" cy="10.2" r="1.7"/><path d="M20.4 15.2l-4.6-4.6L7.2 19"/>',
+  file:    '<path d="M14 3.4H7.2a2 2 0 0 0-2 2v13.2a2 2 0 0 0 2 2h9.6a2 2 0 0 0 2-2V8.3z"/><path d="M14 3.4v4.9h4.8"/>',
+  down:    '<path d="M12 3.6v11.6"/><path d="M7.9 11.2l4.1 4.1 4.1-4.1"/><path d="M4.4 19.6h15.2"/>',
+  up:      '<path d="M12 15.2V3.6"/><path d="M7.9 7.7L12 3.6l4.1 4.1"/><path d="M4.4 19.6h15.2"/>',
+  refresh: '<path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20.2 4.2v4.9h-4.9"/>',
+  check:   '<path d="M4.8 12.4l4.9 4.9 9.5-9.5"/>',
+  pin:     '<path d="M12 14.6V21"/><path d="M8.4 3.4h7.2l-1.1 6.2 2.6 2.6H6.9l2.6-2.6z"/>',
+  warn:    '<path d="M12 4.2l8.8 15.6H3.2z"/><path d="M12 10.2v4M12 16.8v.1"/>',
+  pair:    '<circle cx="8.6" cy="8.6" r="3"/><circle cx="16.4" cy="8.6" r="3"/><path d="M3.4 19.8c0-2.9 2.3-4.9 5.2-4.9s5.2 2 5.2 4.9"/><path d="M15 15c2.9 0 5.6 2 5.6 4.8"/>',
+  dice:    '<rect x="4.2" y="4.2" width="15.6" height="15.6" rx="3.4"/><circle cx="9" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/>',
+  link:    '<path d="M9.6 14.4l4.8-4.8"/><path d="M13.2 7.2l1.6-1.6a3.6 3.6 0 0 1 5.1 5.1L18.3 12"/><path d="M10.8 16.8l-1.6 1.6a3.6 3.6 0 0 1-5.1-5.1L5.7 12"/>',
+  unlink:  '<path d="M13.6 7.6l1.2-1.2a3.6 3.6 0 0 1 5.1 5.1l-1.2 1.2"/><path d="M10.4 16.4l-1.2 1.2a3.6 3.6 0 0 1-5.1-5.1l1.2-1.2"/><path d="M15.6 3.6v2.2M20.4 8.4h-2.2M3.6 15.6h2.2M8.4 20.4v-2.2"/>',
+  eye:     '<path d="M2.6 12S6.1 5.8 12 5.8 21.4 12 21.4 12 17.9 18.2 12 18.2 2.6 12 2.6 12z"/><circle cx="12" cy="12" r="2.9"/>',
+  grid:    '<rect x="3.6" y="3.6" width="7" height="7" rx="1.8"/><rect x="13.4" y="3.6" width="7" height="7" rx="1.8"/><rect x="3.6" y="13.4" width="7" height="7" rx="1.8"/><rect x="13.4" y="13.4" width="7" height="7" rx="1.8"/>',
+};
+function ico(name, size){
+  size = size || 18;
+  return '<svg class="ico" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" '
+    + 'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" '
+    + 'aria-hidden="true">' + (ICONS[name] || ICONS.grid) + '</svg>';
+}
+/* 화면이 그려진 뒤 data-ico 자리에 아이콘을 채웁니다 */
+function paintIcons(root){
+  (root || document).querySelectorAll('[data-ico]').forEach(function(el){
+    if (el.dataset.icoDone) return;
+    el.innerHTML = ico(el.dataset.ico, +el.dataset.icoSize || 18);
+    el.dataset.icoDone = '1';
+  });
+}
+
 /* ══ STATE ══ */
 let S = {
   cols:6, rows:5, frontRows:2,
@@ -789,6 +836,10 @@ const load = () => {
 };
 load();
 currentSeating = []; // 항상 빈 상태로 시작
+
+// 아이콘은 바로 그립니다. requestAnimationFrame 안에 두면 탭이 뒤에 있을 때
+// 콜백이 보류돼 아이콘 자리가 빈 채로 남습니다.
+paintIcons();
 
 // ── 초기 렌더 ──
 requestAnimationFrame(() => {
@@ -1011,7 +1062,7 @@ function applyLayout(){
     return s;
   });
   save(); refreshLayoutGrid(); refreshStats(); renderClassroom();
-  toast('레이아웃을 저장했어요 ✓');
+  toast('레이아웃을 저장했어요');
 }
 function refreshLayoutGrid(){
   var ci=document.getElementById('cols');if(ci)ci.value=S.cols;
@@ -1152,7 +1203,7 @@ function refreshStudentTable(){
     actWrap.style.cssText='display:flex;align-items:center;justify-content:flex-end;gap:8px;';
     const chip=document.createElement('button');
     chip.className='front-chip'+(s.frontRow?' on':'');
-    chip.innerHTML=(s.frontRow?'👓 앞자리':'앞자리');
+    chip.innerHTML=(s.frontRow?ico('eye',13)+' 앞자리':'앞자리');
     chip.onclick=function(){
       S.students[i].frontRow=!S.students[i].frontRow;
       save();refreshStudentTable();
@@ -1314,7 +1365,7 @@ function refreshDistRuleList(){
   if(!S.distRules.length){el.innerHTML='<p style="font-size:12px;color:var(--g400);text-align:center;padding:12px;">아직 규칙이 없어요</p>';return;}
   const strLabel={3:'2칸 이상',4:'3칸 이상',5:'4칸 이상'};
   el.innerHTML=S.distRules.map((r,i)=>{
-    const icon=r.type==='together'?'💚':'🔴';
+    const icon=ico(r.type==='together'?'link':'unlink',14);
     const lbl=r.type==='together'?'붙이기':'떨어트리기';
     const strDesc=r.type==='apart'?(strLabel[r.strength]||'강도'+r.strength):'인접';
     const bclass=r.type==='together'?'badge-together':'badge-apart';
@@ -1402,7 +1453,7 @@ function refreshFixGrid(){
         const pin=document.createElement('div');
         const pinColor = fixed.gender==='F'?'#d11a40':'var(--blue)';
         pin.style.cssText=`font-size:${numFSize}px;color:${pinColor};font-weight:600;line-height:1;`;
-        pin.textContent=(mismatch?'⚠️ ':'📌 ')+fixed.num+'번';
+        pin.innerHTML=ico(mismatch?'warn':'pin',12)+' '+fixed.num+'번';
         const nm=document.createElement('div');
         nm.style.cssText=`font-size:${nameFSize}px;font-weight:700;color:#222;line-height:1.2;text-align:center;word-break:keep-all;`;
         nm.textContent=fixed.name;
@@ -1449,7 +1500,7 @@ function openFixPopup(r,c){
   if(fixed){
     const releaseBtn=document.createElement('button');
     releaseBtn.style.cssText=`display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1.5px solid rgba(255,59,48,.3);background:rgba(255,59,48,.05);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--red);transition:all .13s;width:100%;`;
-    releaseBtn.innerHTML=`<span style="font-size:16px;">🔓</span> 고정 해제`;
+    releaseBtn.innerHTML=ico('unlock',16)+' 고정 해제';
     releaseBtn.onclick=()=>{
       S.students.forEach((s,i)=>{if(s.fixedSeat===_fixPopupKey)S.students[i]={...s,fixedSeat:null};});
       save();refreshFixGrid();refreshFixedRuleList();refreshStudentTable();
@@ -1468,7 +1519,7 @@ function openFixPopup(r,c){
   const seatGender = genderLock ? (pc%2===0?'M':'F') : null;
   if(genderLock){
     const sub=document.getElementById('fix-popup-sub');
-    if(sub) sub.textContent += `  ·  이 칸은 ${seatGender==='M'?'🟦 남자 자리':'🟥 여자 자리'}예요`;
+    if(sub) sub.textContent += `  ·  이 칸은 ${seatGender==='M'?'남자 자리':'여자 자리'}예요`;
   }
 
   // 학생 목록
@@ -1483,7 +1534,7 @@ function openFixPopup(r,c){
     left.innerHTML=`${s.num}번 ${s.name}${gtag}`;
     const right=document.createElement('span');
     right.style.cssText=`font-size:11px;color:${mismatch?'#e08600':'var(--g400)'};`;
-    right.innerHTML=isHere?'✓ 현재 배정':mismatch?`⚠️ ${seatGender==='M'?'남자':'여자'} 자리`:isElsewhere?`(${s.fixedSeat.split(',').map((v,i)=>i===0?+v+1+'행':+v+1+'열').join(' ')} 고정)` :'';
+    right.innerHTML=isHere?ico('check',13)+' 현재 배정':mismatch?ico('warn',13)+` ${seatGender==='M'?'남자':'여자'} 자리`:isElsewhere?`(${s.fixedSeat.split(',').map((v,i)=>i===0?+v+1+'행':+v+1+'열').join(' ')} 고정)` :'';
     btn.appendChild(left); btn.appendChild(right);
     if(!isHere){
       btn.onmouseenter=()=>{btn.style.background=mismatch?'rgba(255,149,0,.12)':'var(--blue-d)';btn.style.borderColor=mismatch?'rgba(255,149,0,.6)':'var(--blue)';};
@@ -1533,7 +1584,7 @@ function refreshFixedRuleList(){
     const item=document.createElement('div');
     item.className='rule-item';
     item.innerHTML=`
-      <span style="font-size:15px">📌</span>
+      <span data-ico="pin" data-ico-size="15"></span>
       <span class="rnames"><b>${s.num}번 ${s.name}</b></span>
       <span class="rule-badge badge-fixed">${r+1}행 ${c+1}열</span>`;
     const btn=document.createElement('button');
@@ -2105,7 +2156,7 @@ function checkRules(seat){
     let ok;
     if(rule.type==='apart') ok=dist>=minDist;
     else ok=dist<=1;
-    const icon=ok?'✅':'⚠️';
+    const icon=ico(ok?'check':'warn',13);
     const desc=rule.type==='apart'?`${dist}칸 거리 (기준: ${minDist}칸 이상)`:`${dist}칸 거리 (기준: 인접 1칸)`;
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--g100);font-size:12px;">${icon} <b>${rule.n1}</b> ↔ <b>${rule.n2}</b> — ${rule.type==='apart'?'떨어트리기':'붙이기'} ${desc}</div>`;
   }).filter(Boolean);
@@ -2547,7 +2598,7 @@ function exportData(){
   const now=new Date();
   const ymd=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`자리배치_백업_${ymd}.json`;a.click();
-  toast('백업 파일을 저장했어요 ✓');
+  toast('백업 파일을 저장했어요');
 }
 function importData(){document.getElementById('import-in').click();}
 function handleImport(e){
