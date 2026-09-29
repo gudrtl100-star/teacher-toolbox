@@ -78,4 +78,6 @@ docs/               기획·운영 문서
 공개 주소: https://gudrtl100-star.github.io/teacher-toolbox/
 저장소: `gudrtl100-star/teacher-toolbox` (Public), GitHub Pages, `main` 브랜치 루트.
 고친 뒤 `git add . && git commit -m "..." && git push` 하면 1~2분 뒤 반영됩니다. 자세한 내용은 `docs/DEPLOY.md`.
+**`assets/style.css`·`assets/app.js`·`data/tools.js`를 고치면 `index.html`의 `?v=날짜`도 올립니다.** GitHub Pages는 이 파일들을 브라우저에 10분간 저장해 두게 해서, 안 올리면 고친 화면이 한참 늦게 보입니다.
+공개 사이트가 통째로 404면 저장소의 Pages 설정이 꺼진 것입니다(2026-09에 한 번 있었음). Settings → Pages → Branch `main` / `(root)`로 다시 켭니다.
 **공개 저장소이므로 학생 자료(엑셀·PDF·한글)를 커밋하면 안 됩니다.** `.gitignore`가 해당 확장자를 막고 있습니다.
