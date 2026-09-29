@@ -32,14 +32,14 @@ const TOOLS = [
     tags: ['자리', '좌석표', '제비뽑기', '학급운영', '이미지 저장'],
     icon: 'seating',
     path: 'tools/seating-chart/index.html',
-    version: '1.1.0',
+    version: '1.1.1',
     added: '2026-07-31',
-    updated: '2026-08-02',
+    updated: '2026-09-29',
     status: 'stable',
     offline: true,
     devices: ['pc', 'mobile'],
     howto: [
-      '⚙️ 설정에서 교실 열·행을 정하고 학생 명단(엑셀·CSV)을 올립니다.',
+      '설정 버튼(PC는 오른쪽 아래)에서 교실 열·행을 정하고 학생 명단(엑셀·CSV)을 올립니다.',
       '필요하면 "배치 규칙" 탭에서 붙이기/떨어뜨리기 규칙을 추가합니다.',
       '"자리 뽑기"를 누릅니다. 한번에 공개 / 직접 클릭 공개 중 고를 수 있습니다.',
       '결과가 마음에 들면 학생용·교사용 좌석표를 이미지로 저장합니다.',
@@ -52,15 +52,15 @@ const TOOLS = [
     tagline: '신고서·출결 현황·학급별 집계가 서로 맞는지 한 번에 대조',
     description:
       '나이스에서 내려받은 월별 출결 파일을 올리면 서로 어긋나는 부분을 찾아줍니다. ' +
-      '출결 현황과 신고서 대조, 지각·조퇴 결시 교시 확인, 학생별 건수와 학급 집계 비교, ' +
+      '출결 현황과 신고서 대조, 지각·조퇴·결과 결시 교시 확인, 학생별 건수와 학급 집계 비교, ' +
       '결재 완료 여부, 생리 결석 한도와 사유 표현까지 점검합니다.',
     category: 'attendance',
     tags: ['출결', '나이스', '결석신고서', '월말업무', '교차검증'],
     icon: 'checklist',
     path: 'tools/attendance-checker/index.html',
-    version: '1.0.2',
+    version: '1.1.0',
     added: '2026-07-31',
-    updated: '2026-08-02',
+    updated: '2026-09-29',
     status: 'stable',
     offline: true,
     devices: ['pc'],

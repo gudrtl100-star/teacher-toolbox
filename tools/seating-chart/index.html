@@ -485,7 +485,7 @@ button .ico{pointer-events:none;}
     <div class="pw-err" id="pw-err"></div>
     <button class="btn btn-blue" style="width:100%;justify-content:center;border-radius:10px;padding:13px;" onclick="checkPw()">확인</button>
     <button class="btn btn-ghost" style="width:100%;justify-content:center;border-radius:10px;padding:12px;margin-top:7px;" onclick="closePw()">취소</button>
-    <div class="pw-hint">기본 비밀번호: 1234</div>
+    <div class="pw-hint" id="pw-hint">기본 비밀번호: 1234 · 설정에서 바꿔 주세요</div>
   </div>
 </div>
 
@@ -982,7 +982,10 @@ let _rt;
 window.addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{if(window.innerWidth>768)closeSidebar();renderClassroom();},80);});
 
 /* ══ PW ══ */
-function askPw(){document.getElementById('pw-modal').classList.add('on');document.getElementById('pw-in').value='';document.getElementById('pw-err').textContent='';setTimeout(()=>document.getElementById('pw-in').focus(),80);}
+function askPw(){
+  // 기본 비밀번호 안내는 아직 안 바꿨을 때만 — 바꾼 뒤에도 보이면 학생이 1234로 열려 해봅니다
+  var hint=document.getElementById('pw-hint');if(hint)hint.style.display=(S.adminPw==='1234')?'':'none';
+  document.getElementById('pw-modal').classList.add('on');document.getElementById('pw-in').value='';document.getElementById('pw-err').textContent='';setTimeout(()=>document.getElementById('pw-in').focus(),80);}
 function closePw(){document.getElementById('pw-modal').classList.remove('on');}
 function checkPw(){if(document.getElementById('pw-in').value===S.adminPw){closePw();openAdmin();}else{document.getElementById('pw-err').textContent='비밀번호가 틀렸어요';document.getElementById('pw-in').value='';document.getElementById('pw-in').focus();}}
 function changePw(){const v=document.getElementById('new-pw').value.trim();if(!v)return;S.adminPw=v;save();toast('비밀번호 변경 완료');document.getElementById('new-pw').value='';}
@@ -1012,7 +1015,9 @@ function switchTab(name){
 function getInputLayout(){
   var c=Math.max(1,Math.min(12,+document.getElementById('cols').value||S.cols));
   var r=Math.max(1,Math.min(12,+document.getElementById('rows').value||S.rows));
-  var f=Math.max(0,Math.min(r,+document.getElementById('front-rows').value||S.frontRows));
+  // 0도 올바른 값입니다 — `||`로 받으면 0이 빈칸 취급돼 옛 값으로 되돌아갔습니다
+  var fv=document.getElementById('front-rows').value;
+  var f=Math.max(0,Math.min(r,fv===''||isNaN(+fv)?S.frontRows:+fv));
   return {cols:c,rows:r,frontRows:f};
 }
 // 숫자 바꾸면 실시간 미리보기 (저장은 안 함)
@@ -2187,6 +2192,12 @@ async function startShuffle(){
   currentSeating=result;
   revealedKeys=new Set();
 
+  // 자리보다 학생이 많으면 남는 학생이 조용히 빠집니다 — 끝날 때 알려 줍니다
+  let seatedN=0;
+  result.forEach(row=>row.forEach(cell=>{ if(cell) seatedN++; }));
+  const missingN=S.students.length-seatedN;
+  const warnMissing=()=>{ if(missingN>0) setTimeout(()=>toast(`자리가 모자라 ${missingN}명이 배치되지 않았어요`,'warn'),900); };
+
   // 배치될 자리 목록
   const places=[];
   for(let r=0;r<S.rows;r++) for(let c=0;c<S.cols;c++)
@@ -2218,6 +2229,7 @@ async function startShuffle(){
     if(S.showCd) await countdown();
     renderClassroom(result);
     setStatus(`${places.length}명 — 자리를 눌러 공개하세요`);
+    warnMissing();
     await sleep(200);
     animating=false;
     document.getElementById('shuffle-btn').disabled=false;
@@ -2230,6 +2242,7 @@ async function startShuffle(){
     if(S.showCf) launchConfetti();
     sfxFanfare();
     toast('자리 배치 완료!');
+    warnMissing();
     await sleep(300);
     animating=false;
     document.getElementById('shuffle-btn').disabled=false;
@@ -2335,6 +2348,7 @@ async function startShuffle(){
   if(S.showCf) launchConfetti();
   sfxFanfare();
   toast('자리 배치 완료! 🎉');
+  warnMissing();
 
   // 남녀짝인데 수가 안 맞아 동성끼리 앉은 경우 안내
   if(S._lastPairWarn>0){

@@ -35,6 +35,7 @@ docs/               기획·운영 문서
 2. 고친 뒤에는 **CSS를 제외한 나머지가 원본과 동일한지 해시로 확인**합니다. 백업은 `_backup_*/`에 있습니다
 3. JS를 꼭 고쳐야 하면, **판정 로직이 아니라 표시 문자열만** 건드리고, 되돌렸을 때 원본과 일치하는지로 변경 범위를 증명합니다
 4. **표시용 HTML과 내보내기용 데이터를 섞지 마세요.** 출결 점검기는 `sec.rows` 배열을 화면에도 쓰고 엑셀 저장에도 그대로 씁니다. 배열에 `<br>` 같은 태그를 넣으면 **엑셀 셀에 태그가 글자로 찍힙니다.** 줄바꿈은 화면에 그리는 시점(`<td>`를 만드는 곳)에서만 변환합니다
+5. **출결 점검기는 출결 점검 스킬의 엔진이기도 합니다.** `C:\Users\user\Desktop\Claude\출결 점검\.claude\skills\attendance-check\`의 스킬이 이 파일을 화면 없는 브라우저로 열어 `detectKind`·`addFiles`·`getFile`·`extractMonths`·`readXlsx`·`readPdfRows`·`readPdfText`·`parseStatusPdf`·`parseStatusXlsx`·`parseAbsence`·`parseLate`·`parseField`·`parseClassSummary`·`validate`·`buildTodo`·`downloadExcel`을 직접 부릅니다. **이 함수들의 이름과 인자를 바꾸지 마세요.** 점검 규칙을 바꾸면 스킬의 `references/rules.md`도 같이 고치고, 스킬 안 사본(`engine/attendance-checker.html`)도 새로 복사합니다
 
 ## 도구를 추가할 때
 
