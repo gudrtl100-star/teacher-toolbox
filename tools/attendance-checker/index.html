@@ -372,6 +372,33 @@ footer .v { font-weight:700; color:var(--ink-2); }
 .tb-home:hover { background:rgba(0,0,0,.05); color:var(--ink); }
 .tb-home:active { transform:scale(.97); }
 .tb-home svg { flex-shrink:0; }
+
+/* PC 넓은 화면에서는 폭을 넓힌 만큼 글씨도 키웁니다 — 특히 표 안의 문제 설명·조치 방향.
+   좁은 화면(1100px 이하)은 표가 다시 옆으로 잘리지 않도록 원래 크기 그대로 */
+@media (min-width:1101px){
+  table { font-size:15px; }
+  th { font-size:13.5px; padding:11px 14px; }
+  td { padding:12px 14px; line-height:1.6; letter-spacing:-0.006em; }
+  .method { font-size:14px; padding:12px 14px; }
+  .pass-cap { font-size:14px; }
+  .empty-ok { font-size:15px; }
+  .section-head { padding:20px 24px; }
+  .section-head .title { font-size:17px; letter-spacing:-0.024em; }
+  .section-head .tag { font-size:13.5px; }
+  .section-body { padding:0 24px 24px; }
+  .vb-title { font-size:26px; letter-spacing:-0.034em; }
+  .vb-sub { font-size:15.5px; }
+  .todo-head, .summary-head { font-size:16px; }
+  .tg-title { font-size:17px; }
+  .tg-cnt { font-size:15px; }
+  .tg-list li { font-size:15.5px; }
+  .summary-row .label { font-size:15.5px; }
+  .summary-row .cnt { font-size:14.5px; }
+  .rt-title { font-size:26px; }
+  .rt-sub { font-size:14px; }
+  .gstep .gt { font-size:15px; }
+  .gstep .gd { font-size:13.5px; }
+}
 </style>
 </head>
 <body>
@@ -383,11 +410,13 @@ footer .v { font-weight:700; color:var(--ink-2); }
       <p>파일을 올리고 <b>시작</b>을 누르면 아래 순서로 하나씩 대조해서 다른 곳을 찾아드려요.</p>
     </div>
     <div class="im-steps">
-      <div class="gstep"><div class="gnum">1</div><div><div class="gt">출결 현황 ↔ 신고서</div><div class="gd">출결 현황의 각 건에 대응하는 신고서가 있는지 맞춰봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">2</div><div><div class="gt">결시 교시 대조</div><div class="gd">지각·조퇴 교시가 신고서와 같은지 요일 규칙으로 변환해 비교해요.</div></div></div>
-      <div class="gstep"><div class="gnum">3</div><div><div class="gt">집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">4</div><div><div class="gt">결재·서류 확인</div><div class="gd">신고서·교외체험이 완결 처리됐는지 확인해요. 교외체험은 신청서·보고서 둘 다요.</div></div></div>
-      <div class="gstep"><div class="gnum">5</div><div><div class="gt">생리 한도 · 사유 표현</div><div class="gd">생리 관련 한도 초과, 사유의 명사형 여부를 점검해요.</div></div></div>
+      <div class="gstep"><div class="gnum">1</div><div><div class="gt">출결 현황 ↔ 신고서</div><div class="gd">출결 현황의 각 건에 신고서가 있는지, 신고서가 나이스에 반영됐는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">2</div><div><div class="gt">결시 교시 대조</div><div class="gd">지각·조퇴·결과 교시를 요일 규칙(화·수 7교시)으로 펼쳐 비교해요.</div></div></div>
+      <div class="gstep"><div class="gnum">3</div><div><div class="gt">출결 현황 집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">4</div><div><div class="gt">신고서 결재 완결 여부</div><div class="gd">결석·지각·조퇴·결과 신고서 결재가 모두 완결됐는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">5</div><div><div class="gt">교외체험학습</div><div class="gd">신청서·보고서 완결, 첨부파일, 출결 기록과 날짜가 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">6</div><div><div class="gt">생리 결석 한도</div><div class="gd">생리결석 월 1회, 생리 지각·조퇴·결과 월 3회를 넘지 않았는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">7</div><div><div class="gt">사유 표현</div><div class="gd">출결 현황 사유가 "복통"처럼 명사형인지 봐요.</div></div></div>
     </div>
     <div class="im-foot">
       <div class="im-fhead">📂 이런 파일이 필요해요 · 나이스에서 내려받기</div>
@@ -432,11 +461,13 @@ footer .v { font-weight:700; color:var(--ink-2); }
     <aside class="guide">
       <h3>이렇게 확인해요</h3>
       <p class="gsub">파일을 올리고 시작을 누르면 아래 순서로 대조해요.</p>
-      <div class="gstep"><div class="gnum">1</div><div><div class="gt">출결 현황 ↔ 신고서</div><div class="gd">출결 현황의 각 건에 신고서가 있는지, 거꾸로 신고서가 나이스에 반영됐는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">1</div><div><div class="gt">출결 현황 ↔ 신고서</div><div class="gd">출결 현황의 각 건에 신고서가 있는지, 신고서가 나이스에 반영됐는지 봐요.</div></div></div>
       <div class="gstep"><div class="gnum">2</div><div><div class="gt">결시 교시 대조</div><div class="gd">지각·조퇴·결과 교시를 요일 규칙(화·수 7교시)으로 펼쳐 비교해요.</div></div></div>
-      <div class="gstep"><div class="gnum">3</div><div><div class="gt">집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">4</div><div><div class="gt">결재·서류 확인</div><div class="gd">신고서 완결, 교외체험학습 신청서·보고서·첨부와 출결 기록을 확인해요.</div></div></div>
-      <div class="gstep"><div class="gnum">5</div><div><div class="gt">생리 한도 · 사유 표현</div><div class="gd">생리 관련 한도와 사유가 명사형인지 점검해요.</div></div></div>
+      <div class="gstep"><div class="gnum">3</div><div><div class="gt">출결 현황 집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">4</div><div><div class="gt">신고서 결재 완결 여부</div><div class="gd">결석·지각·조퇴·결과 신고서 결재가 모두 완결됐는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">5</div><div><div class="gt">교외체험학습</div><div class="gd">신청서·보고서 완결, 첨부파일, 출결 기록과 날짜가 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">6</div><div><div class="gt">생리 결석 한도</div><div class="gd">생리결석 월 1회, 생리 지각·조퇴·결과 월 3회를 넘지 않았는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">7</div><div><div class="gt">사유 표현</div><div class="gd">출결 현황 사유가 "복통"처럼 명사형인지 봐요.</div></div></div>
       <div class="gfoot"><b>필요한 파일</b> · 나이스에서 내려받기<br>결석신고서 · 지각·조퇴·결과신고서 (엑셀)<br>출결 현황 · 학급별 출결 (PDF)<br>교외체험학습 현황 (엑셀, 선택)</div>
     </aside>
    </div>
@@ -1255,18 +1286,19 @@ function validate({ status, absence, late, field, classSum, hasField }){
       l.state?`진행상태: ${l.state}`:'진행상태: 미확인',`${l.name} ${l.kind} 신고서 결재를 완결 처리하세요`]);
     else donePass.push([shortDate(l.date)||'—',(l.num?l.num+'번 ':'')+l.name,(l.kind||'')+' 신고서','완결 ✓']);
   });
+  // 교외체험학습은 5단계에서 따로 봅니다 (신청서·보고서 완결 + 첨부 + 출결 기록)
+  const fieldChk=[], fieldPass=[];
   if(hasField){
     field.forEach(f=>{
       const inc=[];
       if(!/완결/.test(f.appState)) inc.push('신청서');
       if(!/완결/.test(f.repState)) inc.push('보고서');             // 교외체험은 신청서·보고서 모두 완결이어야 함
-      if(inc.length) doneChk.push([shortDate(f.date)||'—',(f.num?f.num+'번 ':'')+f.name,'교외체험학습',
+      if(inc.length) fieldChk.push([shortDate(f.date)||'—',(f.num?f.num+'번 ':'')+f.name,'교외체험학습',
         `${inc.join('·')} 미완결 (신청서: ${f.appState||'없음'} / 보고서: ${f.repState||'없음'})`,
         `${f.name} 교외체험학습 ${inc.join('·')}를 완결 처리하세요`]);
-      else donePass.push([shortDate(f.date)||'—',(f.num?f.num+'번 ':'')+f.name,'교외체험학습','신청서·보고서 완결 ✓']);
+      else fieldPass.push([shortDate(f.date)||'—',(f.num?f.num+'번 ':'')+f.name,'교외체험학습','신청서·보고서 완결 ✓']);
     });
   }
-  // (결재 완결 여부는 아래 4단계에서 통합 점검)
 
   /* --- 1단계: 출결 현황의 각 건이 신고서에 있는가 (출결 현황 기준) --- */
   const reports=[
@@ -1353,9 +1385,9 @@ function validate({ status, absence, late, field, classSum, hasField }){
     s1.push([shortDate(rp.date), who, label, '출결 현황: 없음', `신고서: 있음 (${rp.src})`,
       `나이스 일일 출결관리에 ${rp.name} ${shortDate(rp.date)} ${label} 입력`]);
   });
-  sections.push({ title:'1단계 · 출결 현황 ↔ 신고서 확인 (미인정·교외체험 제외)',
+  sections.push({ title:'1단계 · 출결 현황 ↔ 신고서',
     cols:['날짜','이름','유형','출결 현황','신고서','조치 방향'], rows:s1,
-    method:'출결 현황의 각 건(미인정·교외체험 제외)에 신고서가 있는지, 거꾸로 신고서의 각 건이 출결 현황에 반영됐는지 이름·날짜·유형으로 맞춰봤어요.', passCols:['날짜','이름','유형','판정'], passRows:s1pass });
+    method:'출결 현황의 각 건에 신고서가 있는지, 거꾸로 신고서의 각 건이 출결 현황에 반영됐는지 이름·날짜·유형으로 맞춰봤어요. 미인정은 신고서가 없는 게 정상이라 대조하지 않고, 교외체험학습은 5단계에서 따로 봐요.', passCols:['날짜','이름','유형','판정'], passRows:s1pass });
 
   /* --- 2단계: 결시 교시 대조 (요일 규칙: 화·수 7교시, 나머지 6교시) --- */
   const s2=[], s2pass=[];
@@ -1378,7 +1410,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
         `${st.name} ${shortDate(st.date)} 결시 교시가 신고서와 출결 현황이 다름 — 확인 후 정정`]);
     } else { s2pass.push([shortDate(st.date),(st.num?st.num+'번 ':'')+st.name, st.type, `[${periodSetStr(stSet)}] 일치 ✓`]); }
   });
-  sections.push({ title:'2단계 · 결시 교시 대조 (신고서 ↔ 출결 현황, 요일 규칙 적용)',
+  sections.push({ title:'2단계 · 결시 교시 대조 (신고서 ↔ 출결 현황)',
     cols:['날짜','이름','유형','신고서 교시(변환)','출결 현황 교시','조치 방향'], rows:s2,
     method:'지각·조퇴·결과 건의 신고서 교시를 요일 규칙(화·수 7교시, 그 외 6교시)으로 변환해 출결 현황 교시와 같은지 비교했어요.', passCols:['날짜','이름','유형','판정'], passRows:s2pass });
 
@@ -1405,7 +1437,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
     });
     if(!nm) s3pass.push([name, `결석${a.결석}·지각${a.지각}·조퇴${a.조퇴}·결과${a.결과}`, '집계 일치 ✓']);
   });
-  sections.push({ title:'3단계 · 출결 현황 집계 ↔ 학급별 출결 (인정 제외, 학생별)',
+  sections.push({ title:'3단계 · 출결 현황 집계 ↔ 학급별 출결',
     cols:['날짜','이름','유형','출결 현황','학급별 출결','조치 방향'], rows:s3,
     method:'학생별로 인정 제외 출결 건수를 세어 학급별 출결 집계와 일치하는지 대조했어요.', passCols:['이름','집계(결석·지각·조퇴·결과)','판정'], passRows:s3pass,
     note: Object.keys(classSum).length ? null : '※ 학급별 출결 PDF에서 데이터를 읽지 못했습니다. 수기 확인이 필요합니다.' });
@@ -1448,13 +1480,18 @@ function validate({ status, absence, late, field, classSum, hasField }){
         `나이스 일일 출결관리에 ${f.name} ${shortDate(d)} 교외체험학습 입력`]));
     });
   }
-  // 교외체험 기록(첨부·반영, 6열)을 결재·서류 확인 섹션(5열)에 흡수
-  s4.forEach(r=> doneChk.push([r[0], r[1], r[2], r[4]?`${r[3]} · ${r[4]}`:r[3], r[5]]));
-  s4pass.forEach(r=> donePass.push(r));
-  sections.push({ title:'4단계 · 결재·서류 확인 (신고서·교외체험학습)',
+  sections.push({ title:'4단계 · 신고서 결재 완결 여부',
     cols:['날짜','이름','종류','상태','조치 방향'], rows:doneChk,
-    method:'신고서·교외체험이 완결 처리됐는지(교외체험은 신청서·보고서 둘 다), 첨부파일이 있는지, 교외체험학습 현황과 출결 현황이 날짜까지 서로 맞는지 양쪽으로 확인했어요.',
+    method:'결석신고서와 지각·조퇴·결과신고서의 결재가 모두 완결 처리됐는지 확인했어요.',
     passCols:['날짜','이름','종류','판정'], passRows:donePass });
+
+  // 교외체험 기록(첨부·반영, 6열)을 5단계 표(5열)에 합칩니다
+  s4.forEach(r=> fieldChk.push([r[0], r[1], r[2], r[4]?`${r[3]} · ${r[4]}`:r[3], r[5]]));
+  s4pass.forEach(r=> fieldPass.push(r));
+  sections.push({ title:'5단계 · 교외체험학습', optional: !hasField,
+    cols:['날짜','이름','종류','상태','조치 방향'], rows:fieldChk,
+    method:'신청서·보고서가 둘 다 완결됐는지, 보고서 첨부파일이 있는지, 교외체험학습 현황과 출결 현황이 날짜까지 서로 맞는지 양쪽으로 확인했어요.',
+    passCols:['날짜','이름','종류','판정'], passRows:fieldPass });
 
   /* --- 생리 한도 점검 (전원 표시) --- */
   const men={};
@@ -1464,7 +1501,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
     if(!men[st.name]) men[st.name]={결석:0,기타:0};
     if(baseCategory(st.type)==='결석') men[st.name].결석++; else men[st.name].기타++;
   });
-  const s5=[], s5pass=[];
+  const s5=[], s5pass=[], s7=[];
   Object.entries(men).forEach(([name,v])=>{
     const over=(v.결석>=1&&v.기타>=1)||v.결석>=2||v.기타>=4;
     if(over){
@@ -1478,16 +1515,19 @@ function validate({ status, absence, late, field, classSum, hasField }){
     if(isUnexcused(st.type)) return;
     if(isFieldTrip(st.reason)) return;
     if(st.reason && !isNounReason(st.reason))
-      s5.push([`${shortDate(st.date)} · ${(st.num?st.num+'번 ':'')+st.name}`, '사유 표현',
+      s7.push([`${shortDate(st.date)} · ${(st.num?st.num+'번 ':'')+st.name}`, '사유 표현',
         `현재 사유: ${st.reason}`, `'${st.reason}' → 명사형으로 수정 (예: 복통, 두통, 몸살)`]);
     else if(st.reason && isSoftNounReason(st.reason))
       notes.push([shortDate(st.date), (st.num?st.num+'번 ':'')+st.name, st.type,
         `사유: ${st.reason}`, '그대로 둬도 됩니다 · 명사로 쓰면 더 깔끔해요 (예: 열상, 타박상)']);
   });
-  sections.push({ title:'5단계 · 생리 한도 · 사유 표현',
+  sections.push({ title:'6단계 · 생리 결석 한도',
     cols:['대상','유형','내용','조치 방향'], rows:s5,
-    method:'생리결석 월 1회·생리 지각·조퇴·결과 월 3회 한도와, 사유가 명사형(예: 복통)인지 확인했어요.',
+    method:'사유가 생리통인 출석인정 건을 학생별로 세어, 생리결석 월 1회·생리 지각·조퇴·결과 월 3회 한도를 넘지 않았는지 확인했어요.',
     passCols:['대상','유형','판정'], passRows:s5pass });
+  sections.push({ title:'7단계 · 사유 표현 (명사형 여부)',
+    cols:['대상','유형','내용','조치 방향'], rows:s7,
+    method:'출결 현황의 사유가 "복통", "감기"처럼 명사형으로 적혔는지 확인했어요. 미인정·체험학습은 사유 형식이 정해져 있어 보지 않아요.' });
 
   /* --- 확인 필요 (규칙으로 자동 판정이 어려운 회색지대) --- */
   sections.push({ title:'확인 필요 (자동 판정이 어려운 항목)', isAmbiguous:true,
@@ -1553,17 +1593,16 @@ function buildTodo(R){
       }
       else if(/^2단계/.test(t)) add('period','결시 교시 정정','건','fix',r[1],{d:r[0],t:r[2]});
       else if(/^3단계/.test(t)) add('count','학급별 집계 맞추기','건','fix',r[1],{text:`${r[2]} — ${r[3]} · ${r[4]}`});
-      else if(/^4단계/.test(t)){
+      else if(/^4단계/.test(t)) add('sign','신고서 결재 완결 처리','건','fix',r[1],{d:r[0],t:r[2]});
+      else if(/^5단계/.test(t)){
         if(/교외체험학습 현황: 없음/.test(r[3])) add('field','교외체험학습 신청서·보고서 미제출','명','fix',r[1],{d:r[0],t:''});
         else if(/체험기간에 없음/.test(r[3])) add('fielddate','교외체험학습 체험기간 확인','건','fix',r[1],{d:r[0],t:''});
         else if(/출결 현황: 없음/.test(r[3])) add('neis','나이스 일일 출결관리 미반영','건','fix',r[1],{d:r[0],t:'교외체험학습'});
         else if(/첨부/.test(r[3])) add('attach','교외체험 보고서 첨부','건','fix',r[1],{d:r[0],t:''});
-        else add('sign','결재 완결 처리','건','fix',r[1],{d:r[0],t:r[2]});
+        else add('fieldsign','교외체험학습 완결 처리','건','fix',r[1],{d:r[0],t:''});
       }
-      else if(/^5단계/.test(t)){
-        if(r[1]==='생리 한도') add('men','생리 한도 초과','명','fix',r[0],{text:r[2]});
-        else { const p=String(r[0]).split(' · '); add('reason','사유를 명사형으로 수정','건','fix',p[1]||r[0],{text:`${p[0]} '${String(r[2]).replace('현재 사유: ','')}'`}); }
-      }
+      else if(/^6단계/.test(t)) add('men','생리 한도 초과','명','fix',r[0],{text:r[2]});
+      else if(/^7단계/.test(t)){ const p=String(r[0]).split(' · '); add('reason','사유를 명사형으로 수정','건','fix',p[1]||r[0],{text:`${p[0]} '${String(r[2]).replace('현재 사유: ','')}'`}); }
     });
   });
   const rank={fix:0,check:1,note:2};
