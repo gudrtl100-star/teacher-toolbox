@@ -2690,6 +2690,16 @@ function handleImport(e){
   r.onload=ev=>{
     try{
       const d=JSON.parse(ev.target.result);
+      // 지난 자리 기록만 든 파일이면 기록만 넣고 명단·설정은 그대로 둡니다
+      // (손으로 정리한 배치를 '지난번'으로 등록할 때 — 통째로 덮어쓰면 명단이 사라짐)
+      if(d && d.seatLog && !d.students){
+        const names=new Set(S.students.map(s=>s.name));
+        const inFile=Object.keys((d.seatLog.last&&d.seatLog.last.map)||{});
+        const unknown=inFile.filter(n=>!names.has(n));
+        S.seatLog=d.seatLog; save(); refreshSeatLogInfo();
+        toast(unknown.length ? `지난 자리 기록을 불러왔어요 · 명단에 없는 이름 ${unknown.length}명(${unknown.slice(0,3).join(', ')})` : `지난 자리 기록을 불러왔어요 (${inFile.length}명)`, unknown.length?'warn':'');
+        return;
+      }
       S={...S,...d,emptySeats:new Set(d.emptySeats||[])};
       currentSeating=[]; revealedKeys=new Set();
       save();renderClassroom();refreshStudentTable();refreshSelects();refreshLayoutGrid();refreshStats();
