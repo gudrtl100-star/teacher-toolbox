@@ -27,14 +27,15 @@ const TOOLS = [
     description:
       '교실 레이아웃(열·행·앞줄 우선)과 학생 명단을 넣고 자리를 뽑습니다. ' +
       '특정 학생을 붙이거나 떨어뜨리는 배치 규칙, 자리 고정, 뽑은 뒤 자리 맞바꾸기를 지원합니다. ' +
+      '지난번과 같은 자리·같은 짝은 피해서 뽑습니다. ' +
       '학생용(정방향)·교사용(좌우 반전) 좌석표를 이미지로 저장할 수 있습니다.',
     category: 'classroom',
     tags: ['자리', '좌석표', '제비뽑기', '학급운영', '이미지 저장'],
     icon: 'seating',
     path: 'tools/seating-chart/index.html',
-    version: '1.1.1',
+    version: '1.2.0',
     added: '2026-07-31',
-    updated: '2026-09-29',
+    updated: '2026-10-01',
     status: 'stable',
     offline: true,
     devices: ['pc', 'mobile'],

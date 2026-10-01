@@ -712,6 +712,10 @@ button .ico{pointer-events:none;}
     </div>
     <p style="font-size:11px;color:var(--g400);margin-bottom:14px;">학생 명단·자리 설정을 파일로 저장해 두면 다른 기기에서도 불러올 수 있어요.</p>
     <div class="divider"></div>
+    <div class="sec-eye" style="margin-bottom:8px;">지난 자리 기록</div>
+    <p id="seatlog-info" style="font-size:12px;color:var(--g400);margin-bottom:8px;line-height:1.6;"></p>
+    <button class="btn btn-ghost" onclick="clearSeatLog()">기록 지우기</button>
+    <div class="divider"></div>
     <div class="sec-eye" style="margin-bottom:8px;">초기화</div>
     <button class="btn btn-red" onclick="resetAll()">전체 초기화</button>
     <p style="font-size:11px;color:var(--g400);margin-top:10px;">모든 학생·설정이 삭제돼요. 되돌릴 수 없으니 먼저 백업을 권장해요.</p>
@@ -998,6 +1002,7 @@ function openAdmin(){
   var el=function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
   var cb=function(id,v){var e=document.getElementById(id);if(e)e.checked=v;};
   el('s-spd',S.animSpeed||'normal'); cb('s-cd',S.showCd!==false); cb('s-cf',S.showCf!==false); cb('s-sound',S.soundOn!==false);
+  refreshSeatLogInfo();
   // 패널이 실제로 렌더된 뒤 그리드 그리기
   setTimeout(function(){ refreshLayoutGrid(); refreshFixGrid(); }, 0);
 }
@@ -1604,17 +1609,90 @@ function refreshFixedRuleList(){
   });
 }
 
-/* ══ SEATING ALGORITHM (하이브리드 디스패처) ══
-   짝 성별 모드 → 건설적 배치(짝 직접 구성), 그 외 → 점수 최적화.
-   둘 다 고정석·앞자리·거리규칙을 반영. */
-function genSeating(){
-  if(!S.students.length) return [];
-  const hasPairGender = S.pairMode && S.pairGender && S.pairGender!=='random';
-  return hasPairGender ? genSeatingPaired() : genSeatingScored();
+/* ══ SEATING ALGORITHM ══
+   짝 성별 모드 → 짝을 무작위로 구성한 뒤 자리 교환으로 다듬기, 그 외 → 무작위 후보 중 조건을 다 만족하는 첫 배치.
+   둘 다 고정석·앞자리·거리 규칙과 '지난번 배치 피하기'(같은 자리·같은 짝)를 반영합니다.
+
+   원칙: 조건을 만족하는 배치들 사이에서는 무작위로 고릅니다.
+   예전에는 떨어트리기를 "멀수록 점수"로 매겨 끝까지 올리다 보니, 규칙이 있는 학생이 매번 같은 구석에 앉았습니다. */
+
+/* ── 지난번 배치 기억 ──
+   '지난번' = 오늘 이전에 마지막으로 확정된 배치. 같은 날 학생들 앞에서 다시 뽑아도 기준이 흔들리지 않습니다.
+   확정 시점: 자리 뽑기를 마쳤을 때 · 자리 바꾸기 · '이 배치로 공개' (시뮬레이션은 기록하지 않음) */
+const REPEAT_PENALTY = 300;   // 지난번과 같은 자리 1명 / 같은 짝 1쌍마다 감점 (규칙 위반보다는 가볍게)
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function seatMapOf(seat){
+  const m={};
+  for(let r=0;r<seat.length;r++) for(let c=0;c<(seat[r]||[]).length;c++){
+    const x=seat[r][c]; if(x) m[typeof x==='object'?x.name:x]=r+','+c;
+  }
+  return m;
+}
+function recordSeating(seat){
+  if(!seat||!seat.length) return;
+  const log=S.seatLog||{}, today=todayStr();
+  if(log.last && log.last.date!==today) log.prev=log.last;   // 날이 바뀌었으면 오늘 것이 새 '마지막'
+  log.last={date:today, map:seatMapOf(seat)};
+  S.seatLog=log; save();
+}
+function avoidTarget(){
+  const log=S.seatLog||{};
+  return (log.last && log.last.date===todayStr()) ? log.prev : log.last;
+}
+// 짝 = 같은 행의 (1·2열), (3·4열), (5·6열)…
+function partnerKey(r,c){ return r+','+(c%2===0?c+1:c-1); }
+let _avoid=null;   // genSeating 동안만: {seat:{이름:'r,c'}, partner:{이름:짝 이름}}
+function buildAvoid(){
+  const t=avoidTarget(); if(!t||!t.map) return null;
+  const byKey={}, partner={};
+  Object.entries(t.map).forEach(([n,k])=>{ byKey[k]=n; });
+  Object.entries(t.map).forEach(([n,k])=>{ const[r,c]=k.split(',').map(Number); const p=byKey[partnerKey(r,c)]; if(p) partner[n]=p; });
+  return { seat:t.map, partner, date:t.date };
+}
+// arr: {'r,c': {name}} → 지난번과 같은 자리 수 · 같은 짝 쌍 수
+function repeatCount(arr, avoid){
+  avoid = avoid || _avoid;
+  if(!avoid) return {seat:0, pair:0};
+  let seat=0, pair=0;
+  for(const k in arr){
+    const n=arr[k].name;
+    if(avoid.seat[n]===k) seat++;
+    const[r,c]=k.split(',').map(Number);
+    if(c%2===0){ const q=arr[r+','+(c+1)]; if(q && avoid.partner[n]===q.name) pair++; }
+  }
+  return {seat, pair};
+}
+function seatToArr(seat){
+  const a={};
+  for(let r=0;r<S.rows;r++) for(let c=0;c<S.cols;c++) if(seat[r]&&seat[r][c]) a[r+','+c]=seat[r][c];
+  return a;
 }
 
-/* 짝 성별 모드: 짝을 직접 구성하는 건설적 배치 */
+function genSeating(){
+  if(!S.students.length) return [];
+  _avoid=buildAvoid();
+  try{
+    const hasPairGender = S.pairMode && S.pairGender && S.pairGender!=='random';
+    const seat = hasPairGender ? genSeatingPaired() : genSeatingScored();
+    S._lastRepeat = repeatCount(seatToArr(seat));   // 규칙 때문에 피하지 못한 것 (안내용)
+    return seat;
+  } finally { _avoid=null; }
+}
+
+/* 짝 성별 모드: 무작위로 짝을 지은 뒤 교환으로 다듬기를 여러 번 시도해, 조건을 다 만족하면 바로 멈춥니다 */
 function genSeatingPaired(){
+  const ideal=idealScore([]);
+  let best=null, bestSc=-Infinity, bestWarn=0;
+  for(let t=0;t<40;t++){
+    const r=buildPairedOnce();
+    const sc=scoreSeat(r.seat);
+    if(sc>bestSc){ bestSc=sc; best=r.seat; bestWarn=r.warn; }
+    if(sc>=ideal) break;
+  }
+  S._lastPairWarn=bestWarn;
+  return best;
+}
+function buildPairedOnce(){
   const seat=Array.from({length:S.rows},()=>Array(S.cols).fill(null));
   const isFree=(key)=>!S.emptySeats.has(key);
   const seatSet=(key,s)=>{const[r,c]=key.split(',').map(Number);seat[r][c]={num:s.num,name:s.name};};
@@ -1633,22 +1711,21 @@ function genSeatingPaired(){
     if(!isFree(key))continue;
     if(c%2===0){
       const k2=`${r},${c+1}`;
-      if(c+1<S.cols&&isFree(k2)) pairSlots.push({a:{r,c,key},b:{r,c:c+1,key:k2},frontRow:r<S.frontRows});
-      else soloSlots.push({r,c,key,frontRow:r<S.frontRows});
+      if(c+1<S.cols&&isFree(k2)) pairSlots.push({a:{r,c,key},b:{r,c:c+1,key:k2}});
+      else soloSlots.push({r,c,key});
     } else {
       const kL=`${r},${c-1}`;
-      if(!isFree(kL)) soloSlots.push({r,c,key,frontRow:r<S.frontRows});
+      if(!isFree(kL)) soloSlots.push({r,c,key});
     }
   }
 
-  // 자유 학생 풀
+  // 자유 학생 풀 — 앞자리 학생을 맨 앞에 세우지 않습니다(그러면 늘 1행 왼쪽부터 같은 자리·같은 짝).
+  // 앞자리는 아래 교환 단계에서 점수로 맞춥니다.
   const rest=S.students.filter(s=>!s.fixedSeat);
   let males=rest.filter(s=>s.gender==='M');
   let females=rest.filter(s=>s.gender==='F');
   let unknown=rest.filter(s=>s.gender!=='M'&&s.gender!=='F');
   shuffle(males);shuffle(females);shuffle(unknown);
-  const frontFirst=(list)=>{list.sort((a,b)=>(b.frontRow?1:0)-(a.frontRow?1:0));return list;};
-  frontFirst(males);frontFirst(females);frontFirst(unknown);
 
   const reqGender=(g)=>{ if(g==null)return null; return S.pairGender==='mixed'?(g==='M'?'F':'M'):g; };
   const takeBy=(want)=>{
@@ -1660,100 +1737,88 @@ function genSeatingPaired(){
     if(unknown.length)return unknown.shift();
     return null;
   };
+  const rm=(x)=>{males=males.filter(z=>z!==x);females=females.filter(z=>z!==x);unknown=unknown.filter(z=>z!==x);};
 
-  // 1) 고정석이 한쪽에 있는 짝석 → 파트너 자리에 성별 맞춰 채움
-  //    mixed: 왼쪽(a)=남, 오른쪽(b)=여 이므로 파트너 성별이 자리로 결정됨
+  // 1) 고정석이 한쪽에 있는 짝석 → 파트너 자리에 성별 맞춰 채움 (mixed: 왼쪽=남, 오른쪽=여)
   pairSlots.forEach(ps=>{
     const fa=fixedMap[ps.a.key], fb=fixedMap[ps.b.key];
     if(fa&&!fb&&!seatGet(ps.b.key)){
-      // 오른쪽(b) 파트너: mixed면 여, same이면 같은 성별
       const want = S.pairGender==='mixed' ? 'F' : reqGender(fa.gender);
       const s=takeBy(want); if(s)seatSet(ps.b.key,s);
     } else if(fb&&!fa&&!seatGet(ps.a.key)){
-      // 왼쪽(a) 파트너: mixed면 남, same이면 같은 성별
       const want = S.pairGender==='mixed' ? 'M' : reqGender(fb.gender);
       const s=takeBy(want); if(s)seatSet(ps.a.key,s);
     }
   });
 
-  // 2) 빈 짝석을 성별 규칙대로 채움 (앞줄 짝 우선)
-  //    mixed 모드: 왼쪽 열(ps.a)=남, 오른쪽 열(ps.b)=여로 고정
-  let sameSexPairs=0; // 남녀 못 맞춰 동성끼리 앉은 짝 수
+  // 2) 빈 짝석을 성별 규칙대로 채움 — 짝석 순서도 섞어서, 남는 자리가 늘 뒤쪽에 몰리지 않게
+  let sameSexPairs=0;
   const emptyPairs=pairSlots.filter(ps=>!seatGet(ps.a.key)&&!seatGet(ps.b.key));
-  emptyPairs.sort((x,y)=>(y.frontRow?1:0)-(x.frontRow?1:0));
+  shuffle(emptyPairs);
   emptyPairs.forEach(ps=>{
-    let sLeft=null,sRight=null; // 왼쪽(a)=남 위치, 오른쪽(b)=여 위치
+    let sLeft=null,sRight=null;
     if(S.pairGender==='mixed'){
-      if(males.length&&females.length){
-        sLeft=males.shift();   // 왼쪽=남
-        sRight=females.shift(); // 오른쪽=여
-      } else {
-        // 한쪽 성별 소진 → 남은 사람끼리 (동성 짝). 멘트용 카운트
-        const pool=frontFirst([...males,...females,...unknown]);
+      if(males.length&&females.length){ sLeft=males.shift(); sRight=females.shift(); }
+      else {
+        const pool=[...males,...females,...unknown]; shuffle(pool);
         sLeft=pool.shift(); sRight=pool.shift();
-        const rm=(x)=>{males=males.filter(z=>z!==x);females=females.filter(z=>z!==x);unknown=unknown.filter(z=>z!==x);};
         if(sLeft)rm(sLeft); if(sRight)rm(sRight);
         if(sLeft&&sRight&&sLeft.gender===sRight.gender) sameSexPairs++;
       }
-      if(sLeft)seatSet(ps.a.key,sLeft);
-      if(sRight)seatSet(ps.b.key,sRight);
     } else {
-      // same 모드: 동성 짝
-      let s1=null,s2=null;
-      if(males.length>=2){s1=males.shift();s2=males.shift();}
-      else if(females.length>=2){s1=females.shift();s2=females.shift();}
-      else { const pool=frontFirst([...males,...females,...unknown]); s1=pool.shift();s2=pool.shift();
-        const rm=(x)=>{males=males.filter(z=>z!==x);females=females.filter(z=>z!==x);unknown=unknown.filter(z=>z!==x);};
-        if(s1)rm(s1);if(s2)rm(s2);}
-      if(s1)seatSet(ps.a.key,s1);
-      if(s2)seatSet(ps.b.key,s2);
+      if(males.length>=2&&(males.length>=females.length||females.length<2)){ sLeft=males.shift(); sRight=males.shift(); }
+      else if(females.length>=2){ sLeft=females.shift(); sRight=females.shift(); }
+      else { const pool=[...males,...females,...unknown]; shuffle(pool); sLeft=pool.shift(); sRight=pool.shift(); if(sLeft)rm(sLeft); if(sRight)rm(sRight); }
     }
+    if(sLeft)seatSet(ps.a.key,sLeft);
+    if(sRight)seatSet(ps.b.key,sRight);
   });
-  // 결과 기록 (멘트용)
-  S._lastPairWarn = (S.pairGender==='mixed' && sameSexPairs>0) ? sameSexPairs : 0;
 
   // 3) 단독석: 다수 성별 우선 (혼자 앉는 자리로)
   const maleN=S.students.filter(s=>s.gender==='M').length;
   const femaleN=S.students.filter(s=>s.gender==='F').length;
   const maj = maleN>=femaleN?'M':'F';
   let remaining=[...males,...females,...unknown];
-  remaining.sort((a,b)=>{
-    const am=a.gender===maj?0:1, bm=b.gender===maj?0:1;
-    if(am!==bm)return am-bm;
-    return (b.frontRow?1:0)-(a.frontRow?1:0);
-  });
+  shuffle(remaining);
+  remaining.sort((a,b)=>(a.gender===maj?0:1)-(b.gender===maj?0:1));
   const emptySolo=soloSlots.filter(ss=>!seatGet(ss.key));
-  emptySolo.sort((x,y)=>(y.frontRow?1:0)-(x.frontRow?1:0));
+  shuffle(emptySolo);
   emptySolo.forEach(ss=>{if(remaining.length)seatSet(ss.key,remaining.shift());});
 
   // 4) 남은 학생 → 빈 좌석 아무데나
   if(remaining.length){
-    for(let r=0;r<S.rows&&remaining.length;r++)for(let c=0;c<S.cols&&remaining.length;c++){
-      const key=`${r},${c}`;
-      if(isFree(key)&&!seatGet(key))seatSet(key,remaining.shift());
-    }
+    const freeKeys=[];
+    for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++){ const key=`${r},${c}`; if(isFree(key)&&!seatGet(key)) freeKeys.push(key); }
+    shuffle(freeKeys);
+    freeKeys.forEach(k=>{ if(remaining.length) seatSet(k,remaining.shift()); });
   }
 
-  // 5) 거리 규칙 있으면 스왑으로 미세조정 (짝/성별 유지 위해 같은 성별끼리만 스왑)
-  if(S.distRules.length) improveBySwap(seat,true);
-  return seat;
+  // 5) 같은 성별끼리만 자리를 바꿔 가며 거리 규칙·앞자리·지난번 피하기를 맞춤 (짝 성별 배치 유지)
+  improveBySwap(seat,true);
+  return { seat, warn: (S.pairGender==='mixed' ? sameSexPairs : 0) };
 }
 
-/* 거리 규칙 위반 감소를 위해 두 자리 교환.
-   keepGender=true면 같은 성별끼리만 스왑(짝 성별 배치 유지) */
+/* 점수가 오르는 교환만 받아들입니다. 교환해 보는 순서를 매번 섞어서,
+   늘 앞쪽 칸부터 바뀌어 같은 결과로 수렴하지 않게 합니다.
+   keepGender=true면 같은 성별끼리만 바꿉니다(짝 성별 배치 유지). */
 function improveBySwap(seat,keepGender){
   const gmap={};S.students.forEach(s=>{gmap[s.name]=s.gender;});
+  // 빈 좌석도 포함 — 학생을 빈자리로 옮기는 것도 교환으로 칩니다 (앞줄 빈자리로 앞자리 학생을 옮길 수 있게)
   const cells=[];
-  for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++)if(seat[r][c])cells.push({r,c,key:`${r},${c}`});
+  for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++){
+    const key=`${r},${c}`;
+    if(!S.emptySeats.has(key)&&!isFixedKey(key))cells.push({r,c});
+  }
   let score=scoreSeat(seat);
   for(let pass=0;pass<200;pass++){
     let improved=false;
+    shuffle(cells);
     for(let i=0;i<cells.length;i++)for(let j=i+1;j<cells.length;j++){
       const A=cells[i],B=cells[j];
-      if(isFixedKey(A.key)||isFixedKey(B.key))continue;
-      if(keepGender){
-        const ga=gmap[seat[A.r][A.c].name], gb=gmap[seat[B.r][B.c].name];
-        if(ga!==gb)continue; // 다른 성별 스왑 금지
+      const a=seat[A.r][A.c], b=seat[B.r][B.c];
+      if(!a&&!b)continue;
+      if(keepGender&&a&&b){
+        if(gmap[a.name]!==gmap[b.name])continue;
       }
       const tmp=seat[A.r][A.c];seat[A.r][A.c]=seat[B.r][B.c];seat[B.r][B.c]=tmp;
       const ns=scoreSeat(seat);
@@ -1774,47 +1839,46 @@ function scoreSeat(seat){
   return scoreArr(arr,seats);
 }
 
-/* 짝 성별 모드가 아닐 때: 점수 최적화 방식 */
+/* 짝 성별 모드가 아닐 때: 무작위로 앉힌 뒤 교환으로 다듬기를 여러 번 시도해, 조건을 다 만족하면 바로 멈춥니다.
+   (예전엔 무작위로 수천 번 뽑기만 해서, 규칙·앞자리가 많으면 만족하는 배치를 못 찾고 위반한 채 끝났습니다) */
 function genSeatingScored(){
-  const seat=Array.from({length:S.rows},()=>Array(S.cols).fill(null));
-  const occ=new Set();
-  S.students.filter(s=>s.fixedSeat).forEach(s=>{
-    const[r,c]=s.fixedSeat.split(',').map(Number);
-    if(!S.emptySeats.has(s.fixedSeat)){seat[r][c]={num:s.num,name:s.name};occ.add(s.fixedSeat);}
-  });
   const avail=[];
   for(let r=0;r<S.rows;r++)for(let c=0;c<S.cols;c++){
     const key=`${r},${c}`;
-    if(!S.emptySeats.has(key)&&!occ.has(key))avail.push({r,c,key});
+    if(!S.emptySeats.has(key)&&!isFixedKey(key))avail.push({r,c,key});
   }
   const rest=S.students.filter(s=>!s.fixedSeat);
+  const randomSeat=()=>{
+    const seat=Array.from({length:S.rows},()=>Array(S.cols).fill(null));
+    S.students.filter(s=>s.fixedSeat&&!S.emptySeats.has(s.fixedSeat)).forEach(s=>{
+      const[r,c]=s.fixedSeat.split(',').map(Number); seat[r][c]={num:s.num,name:s.name};
+    });
+    const free=[...avail]; shuffle(free);
+    rest.forEach((s,i)=>{ if(free[i]) seat[free[i].r][free[i].c]={num:s.num,name:s.name}; });
+    return seat;
+  };
   const hasRules=S.distRules.length>0;
   const hasFront=rest.some(s=>s.frontRow)&&S.frontRows>0;
-  const need=hasRules||hasFront;
-  const iter=need?Math.min(8000,Math.max(2000,60*S.students.length)):1;
-  let best=null,bestSc=-Infinity;
+  if(!(hasRules||hasFront||_avoid)) return randomSeat();   // 맞출 조건이 없으면 그냥 무작위
+
   const ideal=idealScore(avail);
-  for(let t=0;t<iter;t++){
-    const free=[...avail];shuffle(free);const arr={};
-    S.students.filter(s=>s.fixedSeat).forEach(s=>{if(!S.emptySeats.has(s.fixedSeat))arr[s.fixedSeat]={num:s.num,name:s.name};});
-    rest.forEach((s,i)=>{if(free[i])arr[free[i].key]={num:s.num,name:s.name};});
-    const sc=scoreArr(arr,avail);
-    if(sc>bestSc){bestSc=sc;best=Object.assign({},arr);}
-    if(need&&sc>=ideal)break;
+  let best=null,bestSc=-Infinity;
+  for(let t=0;t<30;t++){
+    const seat=randomSeat();
+    improveBySwap(seat,false);
+    const sc=scoreSeat(seat);
+    if(sc>bestSc){bestSc=sc;best=seat;}
+    if(sc>=ideal)break;
   }
-  if(best)Object.entries(best).forEach(([k,v])=>{const[r,c]=k.split(',').map(Number);seat[r][c]=v;});
-  return seat;
+  return best;
 }
 
-/* 이론상 달성 가능한 '완벽 점수' 추정 — 도달하면 조기 종료.
-   완벽 불가(홀수/충돌)면 도달 못 하고 반복 끝까지 최선 탐색. */
+/* 조건을 다 만족했을 때의 점수 — 도달하면 바로 멈춥니다(그 사이에서는 무작위).
+   완벽이 불가능하면(홀수·충돌) 끝까지 돌며 가장 나은 배치를 고릅니다. */
 function idealScore(avail){
   let ideal=0;
-  // 거리 규칙: 모두 만족 시 0 이상 (붙이기 보상 포함)
-  S.distRules.forEach(rule=>{
-    if(rule.type==='together') ideal+=rule.strength*200;
-    // apart는 만족 시 0~소량 보너스라 0으로 둠(엄격히 안 잡음)
-  });
+  // 붙이기: 모두 붙으면 규칙마다 보너스. 떨어트리기: 기준만 넘으면 0 (더 멀다고 점수를 더 주지 않음)
+  S.distRules.forEach(rule=>{ if(rule.type==='together') ideal+=rule.strength*200; });
   // 앞자리: 앞자리 학생이 모두 앞줄에 → 인당 보너스
   if(S.frontRows>0){
     const fc=S.students.filter(s=>s.frontRow&&!s.fixedSeat).length;
@@ -1824,12 +1888,10 @@ function idealScore(avail){
   if(S.pairMode && S.pairGender && S.pairGender!=='random'){
     const males=S.students.filter(s=>s.gender==='M').length;
     const females=S.students.filter(s=>s.gender==='F').length;
-    const pairCap=Math.floor(avail.length/2)+ (S.students.filter(s=>s.fixedSeat).length); // 넉넉히
-    let idealPairs;
-    if(S.pairGender==='mixed') idealPairs=Math.min(males,females);
-    else idealPairs=Math.floor(males/2)+Math.floor(females/2);
+    const idealPairs = S.pairGender==='mixed' ? Math.min(males,females) : Math.floor(males/2)+Math.floor(females/2);
     ideal+=idealPairs*600;
   }
+  // 지난번 피하기: 같은 자리·같은 짝 0이 이상적 (감점 0)
   return ideal;
 }
 
@@ -1844,7 +1906,7 @@ function scoreArr(arr,seats){
     if(rule.type==='apart'){
       const minDist={3:2,4:3,5:4}[rule.strength]||2;
       if(dist<minDist) sc-=(minDist-dist)*rule.strength*500;
-      else sc+=(dist-minDist)*rule.strength*10;
+      // 기준을 넘으면 그걸로 충분 — 더 멀다고 점수를 주면 매번 반대편 구석으로 몰립니다
     } else {
       if(dist<=1) sc+=rule.strength*200;
       else sc-=(dist-1)*rule.strength*100;
@@ -1855,31 +1917,23 @@ function scoreArr(arr,seats){
   if(S.pairMode && S.pairGender && S.pairGender!=='random'){
     const gmap={};
     S.students.forEach(s=>{gmap[s.name]=s.gender;});
-    // 다수 성별 판단 (단독석 배치 평가용)
     const maleN=S.students.filter(s=>s.gender==='M').length;
     const femaleN=S.students.filter(s=>s.gender==='F').length;
     const majority = maleN>femaleN?'M':femaleN>maleN?'F':null;
-
     for(let r=0;r<S.rows;r++){
       for(let c=0;c<S.cols;c+=2){
         const k1=`${r},${c}`, k2=`${r},${c+1}`;
         const hasK1=!S.emptySeats.has(k1), hasK2=(c+1<S.cols)&&!S.emptySeats.has(k2);
         const a=arr[k1], b=arr[k2];
-
-        // 짝석(둘 다 유효 좌석)
         if(hasK1 && hasK2){
           if(a&&b){
             const g1=gmap[a.name], g2=gmap[b.name];
             if(g1!=null && g2!=null){
-              if(S.pairGender==='mixed'){
-                if(g1!==g2) sc+=600; else sc-=800;
-              } else {
-                if(g1===g2) sc+=600; else sc-=800;
-              }
+              if(S.pairGender==='mixed'){ if(g1!==g2) sc+=600; else sc-=800; }
+              else { if(g1===g2) sc+=600; else sc-=800; }
             }
           }
         } else if(hasK1 && !hasK2){
-          // 단독석(짝 없는 자리): 다수 성별이 앉으면 보너스
           if(a){
             const g1=gmap[a.name];
             if(majority && g1===majority) sc+=200;
@@ -1898,11 +1952,14 @@ function scoreArr(arr,seats){
       const cell=arr[st.key];
       if(!cell)return;
       if(fmap[cell.name]){
-        if(st.r<S.frontRows) sc+=150;   // 앞자리 학생이 앞줄 → 보상
-        else sc-=200;                    // 앞자리 학생이 뒷줄 → 페널티
+        if(st.r<S.frontRows) sc+=150;
+        else sc-=200;
       }
     });
   }
+
+  // 지난번 배치 피하기: 같은 자리 1명·같은 짝 1쌍마다 감점
+  if(_avoid){ const rp=repeatCount(arr); sc-=(rp.seat+rp.pair)*REPEAT_PENALTY; }
 
   return sc;
 }
@@ -1958,6 +2015,7 @@ function handleSwapClick(r,c){
   currentSeating[r1][c1]=currentSeating[r][c];
   currentSeating[r][c]=tmp;
   swapFirst=null;
+  recordSeating(currentSeating);   // 바꾼 최종 배치를 기록
   renderClassroom();
   toast('자리를 바꿨어요');
 }
@@ -2023,7 +2081,10 @@ function runSim(){
   S._simSeating=seat;
   renderSim(seat);
   checkRules(seat);
-  document.getElementById('sim-ts').textContent='방금 생성됨';
+  const rp=S._lastRepeat||{seat:0,pair:0};
+  document.getElementById('sim-ts').textContent = avoidTarget()
+    ? `방금 생성됨 · 지난번과 같은 자리 ${rp.seat}명 · 같은 짝 ${rp.pair}쌍`
+    : '방금 생성됨';
 }
 function renderSim(seat){
   const g=document.getElementById('sim-grid');if(!g)return;
@@ -2172,6 +2233,7 @@ function checkRules(seat){
 function applyAndShow(){
   const seat=S._simSeating||genSeating();
   currentSeating=seat; revealedKeys=new Set();
+  recordSeating(seat);
   renderClassroom(seat);closeAdmin();
 }
 
@@ -2192,11 +2254,18 @@ async function startShuffle(){
   currentSeating=result;
   revealedKeys=new Set();
 
+  recordSeating(result);   // 다음 번에 '지난번'으로 피할 배치
+
   // 자리보다 학생이 많으면 남는 학생이 조용히 빠집니다 — 끝날 때 알려 줍니다
   let seatedN=0;
   result.forEach(row=>row.forEach(cell=>{ if(cell) seatedN++; }));
   const missingN=S.students.length-seatedN;
-  const warnMissing=()=>{ if(missingN>0) setTimeout(()=>toast(`자리가 모자라 ${missingN}명이 배치되지 않았어요`,'warn'),900); };
+  // 규칙 때문에 지난번과 겹친 것이 남았으면 함께 알립니다 (보통은 0)
+  const rp=S._lastRepeat||{seat:0,pair:0};
+  const warnMissing=()=>{
+    if(missingN>0) setTimeout(()=>toast(`자리가 모자라 ${missingN}명이 배치되지 않았어요`,'warn'),900);
+    if(rp.seat+rp.pair>0) setTimeout(()=>toast(`규칙 때문에 지난번과 같은 자리 ${rp.seat}명 · 같은 짝 ${rp.pair}쌍이 남았어요`,'warn'),missingN>0?3100:900);
+  };
 
   // 배치될 자리 목록
   const places=[];
@@ -2629,6 +2698,18 @@ function handleImport(e){
     }catch{alert('파일을 읽을 수 없어요');}
   };
   r.readAsText(f);e.target.value='';
+}
+/* 지난 자리 기록 — 다음 자리 뽑기에서 같은 자리·같은 짝을 피하는 데 씁니다 */
+function refreshSeatLogInfo(){
+  const el=document.getElementById('seatlog-info'); if(!el) return;
+  const t=avoidTarget();
+  el.textContent = t
+    ? `다음 자리 뽑기는 지난번(${t.date}) 배치와 같은 자리·같은 짝을 피해서 뽑아요.`
+    : '아직 기록이 없어요. 자리를 한 번 뽑으면 다음부터 같은 자리·같은 짝을 피해요.';
+}
+function clearSeatLog(){
+  if(!confirm('지난 자리 기록을 지울까요?\n다음 자리 뽑기는 지난번 배치를 피하지 않아요.'))return;
+  S.seatLog=null; save(); refreshSeatLogInfo(); toast('지난 자리 기록을 지웠어요');
 }
 function resetAll(){
   if(!confirm('모든 데이터를 초기화할까요?'))return;
