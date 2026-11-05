@@ -1295,22 +1295,34 @@ function validate({ status, absence, late, field, classSum, hasField }){
   /* --- 결재 완결 여부 (신고서·교외체험): 완결이 아니면 알림 --- */
   const doneChk=[], donePass=[];
   const seenAbs=new Set();
+  // 상신취소된 서류는 없는 서류로 치고, 따로 처리할 일로 알립니다 (완결하라고 안내하지 않음)
+  const isCancelled=s=>/취소/.test(s||'');
+  const cancelRow=(date,num,name,kind,state)=>[shortDate(date)||'—',(num?num+'번 ':'')+name,kind,
+    `진행상태: ${state} (아직 안 된 서류로 봤어요)`,`${name} ${kind}가 상신취소돼 아직 안 된 상태예요. 새로 내는 등 처리가 필요해요`];
   absence.forEach(a=>{
     const key=a.name+'|'+(a.periodRaw||a.date);
     if(seenAbs.has(key)) return; seenAbs.add(key);                 // 여러 날 결석은 한 신고서 → 1건으로
+    if(isCancelled(a.state)){ doneChk.push(cancelRow(a.date,a.num,a.name,'결석신고서',a.state)); return; }
     if(!/완결/.test(a.state||'')) doneChk.push([shortDate(a.date)||'—',(a.num?a.num+'번 ':'')+a.name,'결석신고서',
       a.state?`진행상태: ${a.state}`:'진행상태: 미확인',`${a.name} 결석신고서 결재를 완결 처리하세요`]);
     else donePass.push([shortDate(a.date)||'—',(a.num?a.num+'번 ':'')+a.name,'결석신고서','완결 ✓']);
   });
   late.forEach(l=>{
+    if(isCancelled(l.state)){ doneChk.push(cancelRow(l.date,l.num,l.name,(l.kind||'')+' 신고서',l.state)); return; }
     if(!/완결/.test(l.state||'')) doneChk.push([shortDate(l.date)||'—',(l.num?l.num+'번 ':'')+l.name,(l.kind||'')+' 신고서',
       l.state?`진행상태: ${l.state}`:'진행상태: 미확인',`${l.name} ${l.kind} 신고서 결재를 완결 처리하세요`]);
     else donePass.push([shortDate(l.date)||'—',(l.num?l.num+'번 ':'')+l.name,(l.kind||'')+' 신고서','완결 ✓']);
   });
+  const cancelledN=doneChk.filter(r=>/취소/.test(r[3])).length;
+  absence=absence.filter(a=>!isCancelled(a.state));
+  late=late.filter(l=>!isCancelled(l.state));
   // 교외체험학습은 5단계에서 따로 봅니다 (신청서·보고서 완결 + 첨부 + 출결 기록)
   const fieldChk=[], fieldPass=[];
   if(hasField){
     field.forEach(f=>{
+      if(isCancelled(f.appState)) fieldChk.push(cancelRow(f.date,f.num,f.name,'교외체험학습 신청서',f.appState));
+      if(isCancelled(f.repState)) fieldChk.push(cancelRow(f.date,f.num,f.name,'교외체험학습 보고서',f.repState));
+      if(isCancelled(f.appState)||isCancelled(f.repState)) return;
       const inc=[];
       if(!/완결/.test(f.appState)) inc.push('신청서');
       if(!/완결/.test(f.repState)) inc.push('보고서');             // 교외체험은 신청서·보고서 모두 완결이어야 함
@@ -1319,6 +1331,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
         `${f.name} 교외체험학습 ${inc.join('·')}를 완결 처리하세요`]);
       else fieldPass.push([shortDate(f.date)||'—',(f.num?f.num+'번 ':'')+f.name,'교외체험학습','신청서·보고서 완결 ✓']);
     });
+    field=field.filter(f=>!isCancelled(f.appState));   // 신청서가 취소됐으면 체험학습 서류가 없는 것으로 봄
   }
 
   /* --- 1단계: 출결 현황의 각 건이 신고서에 있는가 (출결 현황 기준) --- */
@@ -1356,7 +1369,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
   Object.entries(dcnt).forEach(([k,v])=>{ if(v>1){ const pp=k.split('|'); readChk.push([shortDate(pp[1]),pp[0],pp[2],`같은 건이 ${v}번 읽힘`,'중복 파싱 가능 — 확인']); } });
   sections.push({ title:'파일 읽기 확인 · 교차 점검 (오검 방지)',
     cols:['날짜','이름','종류','내용','조치 방향'], rows:readChk,
-    method:`읽은 양 — 출결현황 ${status.length}건 · 결석신고서 ${absence.length} · 지각·조퇴 ${late.length} · 교외체험 ${field.length} · 학급별 ${roster.length}명. 파일 간 이름·번호가 서로 맞는지, 못 읽은 줄·중복이 없는지 교차 확인했어요.` });
+    method:`읽은 양 — 출결현황 ${status.length}건 · 결석신고서 ${absence.length} · 지각·조퇴 ${late.length}${cancelledN?` (상신취소 ${cancelledN}건 제외)`:''} · 교외체험 ${field.length} · 학급별 ${roster.length}명. 파일 간 이름·번호가 서로 맞는지, 못 읽은 줄·중복이 없는지 교차 확인했어요.` });
 
   const s1=[], s1pass=[];
   const s1Miss=[];   // 신고서를 못 찾은 출결 현황 건 — 아래에서 날짜만 어긋난 신고서와 짝지을 때 씁니다
@@ -1614,6 +1627,7 @@ function buildTodo(R){
       }
       else if(/^2단계/.test(t)) add('period','결시 교시 정정','건','fix',r[1],{d:r[0],t:r[2]});
       else if(/^3단계/.test(t)) add('count','학급별 집계 맞추기','건','fix',r[1],{text:`${r[2]} — ${r[3]} · ${r[4]}`});
+      else if(/^[45]단계/.test(t) && /상신취소돼/.test(r[4]||'')) add('cancel','상신취소 · 새로 내는 등 처리 필요','건','fix',r[1],{d:r[0],t:r[2]});
       else if(/^4단계/.test(t)) add('sign','신고서 결재 완결 처리','건','fix',r[1],{d:r[0],t:r[2]});
       else if(/^5단계/.test(t)){
         if(/교외체험학습 현황: 없음/.test(r[3])) add('field','교외체험학습 신청서·보고서 미제출','명','fix',r[1],{d:r[0],t:''});
