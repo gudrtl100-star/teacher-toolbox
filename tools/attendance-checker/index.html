@@ -373,8 +373,9 @@ button.run:disabled { background:#dce0e5; color:#adb5bd; cursor:not-allowed; }
 table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; margin-top:6px;
   border-radius:12px; overflow:hidden; border:1px solid var(--line-2); table-layout:auto; }
 th, td { word-break:keep-all; overflow-wrap:normal; }  /* 한글은 띄어쓰기 단위로만 줄바꿈 */
-th { text-align:left; font-weight:700; color:var(--ink-2); font-size:12px; white-space:nowrap;
-  padding:10px 12px; background:var(--line-2); letter-spacing:-0.02em; }
+th { text-align:left; font-weight:700; color:var(--ink); font-size:13px; white-space:nowrap;
+  padding:10px 12px; background:var(--line-2); letter-spacing:-0.01em; border-bottom:1px solid var(--line); }  /* 표 머리는 진하게 — 본문과 한눈에 구분 */
+thead + tbody tr:first-child td { border-top:0; }
 td { padding:11px 12px; border-top:1px solid var(--line-2); vertical-align:top; color:var(--ink); line-height:1.55; }
 td:first-child { white-space:nowrap; }  /* 날짜/대상 칸은 한 줄 유지 */
 td.action { min-width:150px; }           /* 조치 방향은 넉넉히 */
@@ -451,7 +452,7 @@ footer .v { font-weight:700; color:var(--ink-2); }
    좁은 화면(1100px 이하)은 표가 다시 옆으로 잘리지 않도록 원래 크기 그대로 */
 @media (min-width:1101px){
   table { font-size:15px; }
-  th { font-size:13.5px; padding:11px 14px; }
+  th { font-size:14.5px; padding:12px 14px; }
   td { padding:12px 14px; line-height:1.6; letter-spacing:-0.006em; }
   .method { font-size:14px; padding:12px 14px; }
   .pass-cap { font-size:14px; }
