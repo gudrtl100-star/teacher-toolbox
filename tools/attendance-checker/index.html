@@ -313,7 +313,10 @@ button.run:disabled { background:#dce0e5; color:#adb5bd; cursor:not-allowed; }
 .tg-title { font-size:16px; font-weight:700; letter-spacing:-0.022em; color:var(--ink); }
 .tg-cnt { font-size:14px; font-weight:700; color:var(--err); white-space:nowrap; }
 .todo-group.check .tg-cnt { color:var(--warn); }
-.todo-group.note .tg-title, .todo-group.note .tg-cnt { color:var(--ink-2); font-weight:600; }
+.todo-group.note .tg-title, .todo-group.note .tg-cnt,
+.todo-group.etc .tg-title, .todo-group.etc .tg-cnt { color:var(--ink-2); font-weight:600; }
+.todo-sub { font-size:12px; font-weight:600; letter-spacing:.01em; color:var(--ink-3); padding:16px 0 0; border-top:1px solid var(--line-2); }
+.todo-sub + .todo-group { border-top:0; padding-top:8px; }
 .tg-list { list-style:none; display:grid; gap:8px; }
 .tg-list li { display:grid; grid-template-columns:104px minmax(0,1fr); gap:12px;
   font-size:14px; line-height:1.5; letter-spacing:-0.006em; }
@@ -326,6 +329,10 @@ button.run:disabled { background:#dce0e5; color:#adb5bd; cursor:not-allowed; }
 .st.note, .tag.note { color:var(--ink-2); background:var(--line-2); }
 .dot.note { background:var(--ink-3); }
 .summary-row { cursor:pointer; }
+/* 단계 묶음 제목 (서류 · 나이스 기록 · 그 밖에) */
+.grp-cap { font-size:12px; font-weight:600; letter-spacing:.01em; color:var(--ink-3); padding:16px 12px 4px; }
+.gnum.etc { background:var(--line-2); color:var(--ink-3); }
+.grp-cap:first-child { padding-top:4px; }
 .vb-title { font-size:22px; font-weight:700; letter-spacing:-0.032em; }
 .vb-title.pass { color:var(--ok); }
 .vb-title.fail { color:var(--warn); }
@@ -478,12 +485,12 @@ footer .v { font-weight:700; color:var(--ink-2); }
     </div>
     <div class="im-steps">
       <div class="gstep"><div class="gnum">1</div><div><div class="gt">출결 현황 ↔ 신고서</div><div class="gd">출결 현황의 각 건에 신고서가 있는지, 신고서가 나이스에 반영됐는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">2</div><div><div class="gt">결시 교시 대조</div><div class="gd">지각·조퇴·결과 교시를 요일 규칙(화·수 7교시)으로 펼쳐 비교해요.</div></div></div>
-      <div class="gstep"><div class="gnum">3</div><div><div class="gt">출결 현황 집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">4</div><div><div class="gt">신고서 결재 완결 여부</div><div class="gd">결석·지각·조퇴·결과 신고서 결재가 모두 완결됐는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">5</div><div><div class="gt">교외체험학습</div><div class="gd">신청서·보고서 완결, 첨부파일, 출결 기록과 날짜가 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">2</div><div><div class="gt">신고서 결재 완결 여부</div><div class="gd">결석·지각·조퇴·결과 신고서 결재가 모두 완결됐는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">3</div><div><div class="gt">교외체험학습</div><div class="gd">신청서·보고서 완결, 첨부파일, 출결 기록과 날짜가 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">4</div><div><div class="gt">결시 교시 대조</div><div class="gd">지각·조퇴·결과 교시를 요일 규칙(화·수 7교시)으로 펼쳐 비교해요.</div></div></div>
+      <div class="gstep"><div class="gnum">5</div><div><div class="gt">출결 현황 집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
       <div class="gstep"><div class="gnum">6</div><div><div class="gt">생리 결석 한도</div><div class="gd">생리결석 월 1회, 생리 지각·조퇴·결과 월 3회를 넘지 않았는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">7</div><div><div class="gt">사유 표현</div><div class="gd">출결 현황 사유가 "복통"처럼 명사형인지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum etc">·</div><div><div class="gt">그 밖에 · 사유 표현</div><div class="gd">출결 현황 사유가 "복통"처럼 명사형인지 봐요. 처리할 일 건수에는 넣지 않아요.</div></div></div>
     </div>
     <div class="im-foot">
       <div class="im-fhead">📂 이런 파일이 필요해요 · 나이스에서 내려받기</div>
@@ -529,12 +536,12 @@ footer .v { font-weight:700; color:var(--ink-2); }
       <h3>이렇게 확인해요</h3>
       <p class="gsub">파일을 올리고 시작을 누르면 아래 순서로 대조해요.</p>
       <div class="gstep"><div class="gnum">1</div><div><div class="gt">출결 현황 ↔ 신고서</div><div class="gd">출결 현황의 각 건에 신고서가 있는지, 신고서가 나이스에 반영됐는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">2</div><div><div class="gt">결시 교시 대조</div><div class="gd">지각·조퇴·결과 교시를 요일 규칙(화·수 7교시)으로 펼쳐 비교해요.</div></div></div>
-      <div class="gstep"><div class="gnum">3</div><div><div class="gt">출결 현황 집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">4</div><div><div class="gt">신고서 결재 완결 여부</div><div class="gd">결석·지각·조퇴·결과 신고서 결재가 모두 완결됐는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">5</div><div><div class="gt">교외체험학습</div><div class="gd">신청서·보고서 완결, 첨부파일, 출결 기록과 날짜가 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">2</div><div><div class="gt">신고서 결재 완결 여부</div><div class="gd">결석·지각·조퇴·결과 신고서 결재가 모두 완결됐는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">3</div><div><div class="gt">교외체험학습</div><div class="gd">신청서·보고서 완결, 첨부파일, 출결 기록과 날짜가 맞는지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum">4</div><div><div class="gt">결시 교시 대조</div><div class="gd">지각·조퇴·결과 교시를 요일 규칙(화·수 7교시)으로 펼쳐 비교해요.</div></div></div>
+      <div class="gstep"><div class="gnum">5</div><div><div class="gt">출결 현황 집계 ↔ 학급별 출결</div><div class="gd">학생별 결석·지각·조퇴·결과 건수가 학급별 집계와 맞는지 봐요.</div></div></div>
       <div class="gstep"><div class="gnum">6</div><div><div class="gt">생리 결석 한도</div><div class="gd">생리결석 월 1회, 생리 지각·조퇴·결과 월 3회를 넘지 않았는지 봐요.</div></div></div>
-      <div class="gstep"><div class="gnum">7</div><div><div class="gt">사유 표현</div><div class="gd">출결 현황 사유가 "복통"처럼 명사형인지 봐요.</div></div></div>
+      <div class="gstep"><div class="gnum etc">·</div><div><div class="gt">그 밖에 · 사유 표현</div><div class="gd">출결 현황 사유가 "복통"처럼 명사형인지 봐요. 처리할 일 건수에는 넣지 않아요.</div></div></div>
       <div class="gfoot"><b>필요한 파일</b> · 나이스에서 내려받기<br>결석신고서 · 지각·조퇴·결과신고서 (엑셀)<br>출결 현황 · 학급별 출결 (엑셀 권장, PDF도 가능)<br>교외체험학습 현황 (엑셀, 선택)</div>
     </aside>
    </div>
@@ -1410,7 +1417,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
   const cancelledN=doneChk.filter(r=>/취소/.test(r[3])).length;
   absence=absence.filter(a=>!isCancelled(a.state));
   late=late.filter(l=>!isCancelled(l.state));
-  // 교외체험학습은 5단계에서 따로 봅니다 (신청서·보고서 완결 + 첨부 + 출결 기록)
+  // 교외체험학습은 3단계에서 따로 봅니다 (신청서·보고서 완결 + 첨부 + 출결 기록)
   const fieldChk=[], fieldPass=[];
   if(hasField){
     field.forEach(f=>{
@@ -1472,7 +1479,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
   status.forEach(st=>{
     // 미인정: 신고서 없음이 정상 → 제외
     if(isUnexcused(st.type)) return;
-    // 교외체험학습: 4단계에서 별도 확인 → 제외
+    // 교외체험학습: 3단계에서 별도 확인 → 제외
     if(isFieldTrip(st.reason) || inFieldPeriod(st)) return;
     const f=reports.find(rp=>rp.name===st.name && rp.date===st.date && rp.cat===baseCategory(st.type));
     if(!f && /인정/.test(st.type) && /경기|대회|출전|공문/.test(st.reason||'')){
@@ -1524,7 +1531,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
     cols:['날짜','이름','유형','출결 현황','신고서','조치 방향'], rows:s1,
     method:'출결 현황의 각 건에 신고서가 있는지, 거꾸로 신고서의 각 건이 출결 현황에 반영됐는지 이름·날짜·유형으로 맞춰봤어요. 미인정은 신고서가 없는 게 정상이라 대조하지 않고, 교외체험학습은 5단계에서 따로 봐요.', passCols:['날짜','이름','유형','판정'], passRows:s1pass });
 
-  /* --- 2단계: 결시 교시 대조 (요일 규칙: 화·수 7교시, 나머지 6교시) --- */
+  /* --- 4단계: 결시 교시 대조 (요일 규칙: 화·수 7교시, 나머지 6교시) --- */
   const s2=[], s2pass=[];
   status.forEach(st=>{
     // 지각·조퇴·결과는 교시가 중요함 (결석=전 교시라 제외)
@@ -1545,11 +1552,11 @@ function validate({ status, absence, late, field, classSum, hasField }){
         `${st.name} ${shortDate(st.date)} 결시 교시가 신고서와 출결 현황이 다름 — 확인 후 정정`]);
     } else { s2pass.push([shortDate(st.date),(st.num?st.num+'번 ':'')+st.name, st.type, `[${periodSetStr(stSet)}] 일치 ✓`]); }
   });
-  sections.push({ title:'2단계 · 결시 교시 대조 (신고서 ↔ 출결 현황)',
+  sections.push({ title:'4단계 · 결시 교시 대조 (신고서 ↔ 출결 현황)',
     cols:['날짜','이름','유형','신고서 교시(변환)','출결 현황 교시','조치 방향'], rows:s2,
     method:'지각·조퇴·결과 건의 신고서 교시를 요일 규칙(화·수 7교시, 그 외 6교시)으로 변환해 출결 현황 교시와 같은지 비교했어요.', passCols:['날짜','이름','유형','판정'], passRows:s2pass });
 
-  /* --- 3단계: 출결 현황 집계 ↔ 학급별 출결 (인정 제외, 학생별) --- */
+  /* --- 5단계: 출결 현황 집계 ↔ 학급별 출결 (인정 제외, 학생별) --- */
   const agg={};
   status.forEach(st=>{
     if(isRecognized(st.type)) return;
@@ -1572,12 +1579,12 @@ function validate({ status, absence, late, field, classSum, hasField }){
     });
     if(!nm) s3pass.push([name, `결석${a.결석}·지각${a.지각}·조퇴${a.조퇴}·결과${a.결과}`, '집계 일치 ✓']);
   });
-  sections.push({ title:'3단계 · 출결 현황 집계 ↔ 학급별 출결',
+  sections.push({ title:'5단계 · 출결 현황 집계 ↔ 학급별 출결',
     cols:['날짜','이름','유형','출결 현황','학급별 출결','조치 방향'], rows:s3,
     method:'학생별로 인정 제외 출결 건수를 세어 학급별 출결 집계와 일치하는지 대조했어요.', passCols:['이름','집계(결석·지각·조퇴·결과)','판정'], passRows:s3pass,
     note: Object.keys(classSum).length ? null : '※ 학급별 출결 파일에서 데이터를 읽지 못했습니다. 수기 확인이 필요합니다.' });
 
-  /* --- 4단계: 교외체험학습 완결·기록 --- */
+  /* --- 2·3단계: 신고서 결재 · 교외체험학습 완결·기록 --- */
   const s4=[], s4pass=[];
   if(hasField){
     field.forEach(f=>{
@@ -1615,15 +1622,15 @@ function validate({ status, absence, late, field, classSum, hasField }){
         `나이스 일일 출결관리에 ${f.name} ${shortDate(d)} 교외체험학습 입력`]));
     });
   }
-  sections.push({ title:'4단계 · 신고서 결재 완결 여부',
+  sections.push({ title:'2단계 · 신고서 결재 완결 여부',
     cols:['날짜','이름','종류','상태','조치 방향'], rows:doneChk,
     method:'결석신고서와 지각·조퇴·결과신고서의 결재가 모두 완결 처리됐는지 확인했어요.',
     passCols:['날짜','이름','종류','판정'], passRows:donePass });
 
-  // 교외체험 기록(첨부·반영, 6열)을 5단계 표(5열)에 합칩니다
+  // 교외체험 기록(첨부·반영, 6열)을 3단계 표(5열)에 합칩니다
   s4.forEach(r=> fieldChk.push([r[0], r[1], r[2], r[4]?`${r[3]} · ${r[4]}`:r[3], r[5]]));
   s4pass.forEach(r=> fieldPass.push(r));
-  sections.push({ title:'5단계 · 교외체험학습', optional: !hasField,
+  sections.push({ title:'3단계 · 교외체험학습', optional: !hasField,
     cols:['날짜','이름','종류','상태','조치 방향'], rows:fieldChk,
     method:'신청서·보고서가 둘 다 완결됐는지, 보고서 첨부파일이 있는지, 교외체험학습 현황과 출결 현황이 날짜까지 서로 맞는지 양쪽으로 확인했어요.',
     passCols:['날짜','이름','종류','판정'], passRows:fieldPass });
@@ -1660,7 +1667,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
     cols:['대상','유형','내용','조치 방향'], rows:s5,
     method:'사유가 생리통인 출석인정 건을 학생별로 세어, 생리결석 월 1회·생리 지각·조퇴·결과 월 3회 한도를 넘지 않았는지 확인했어요.',
     passCols:['대상','유형','판정'], passRows:s5pass });
-  sections.push({ title:'7단계 · 사유 표현 (명사형 여부)',
+  sections.push({ title:'기타 · 사유 표현 (명사형 여부)', isEtc:true,
     cols:['대상','유형','내용','조치 방향'], rows:s7,
     method:'출결 현황의 사유가 "복통", "감기"처럼 명사형으로 적혔는지 확인했어요. 미인정·체험학습은 사유 형식이 정해져 있어 보지 않아요.' });
 
@@ -1685,6 +1692,10 @@ function validate({ status, absence, late, field, classSum, hasField }){
   const top=Object.entries(ymCount).sort((a,b)=>b[1]-a[1])[0];
   if(top){ const [y,mo]=top[0].split('-'); year=+y; month=+mo; }
 
+  // 서류(1~3) → 나이스 기록(4~6) → 기타 → 확인 필요 → 참고 순서로 보여 줍니다
+  const ORDER=['파일 읽기','1단계','2단계','3단계','4단계','5단계','6단계','기타','확인 필요','참고'];
+  const rk=s=>{ const i=ORDER.findIndex(k=>s.title.startsWith(k)); return i<0?99:i; };
+  sections.sort((a,b)=>rk(a)-rk(b));
   return { sections, month, year };
 }
 
@@ -1726,11 +1737,11 @@ function buildTodo(R){
         if(r[3]==='출결 현황: 없음') add('neis','나이스 일일 출결관리 미반영','건','fix',r[1],{d:r[0],t:r[2]});
         else add('report','학생 신고서 미제출','건','fix',r[1],{d:r[0],t:r[2]});
       }
-      else if(/^2단계/.test(t)) add('period','결시 교시 정정','건','fix',r[1],{d:r[0],t:r[2]});
-      else if(/^3단계/.test(t)) add('count','학급별 집계 맞추기','건','fix',r[1],{text:`${r[2]} — ${r[3]} · ${r[4]}`});
-      else if(/^[45]단계/.test(t) && /상신취소돼/.test(r[4]||'')) add('cancel','상신취소 · 새로 내는 등 처리 필요','건','fix',r[1],{d:r[0],t:r[2]});
-      else if(/^4단계/.test(t)) add('sign','신고서 결재 완결 처리','건','fix',r[1],{d:r[0],t:r[2]});
-      else if(/^5단계/.test(t)){
+      else if(/^4단계/.test(t)) add('period','결시 교시 정정','건','fix',r[1],{d:r[0],t:r[2]});
+      else if(/^5단계/.test(t)) add('count','학급별 집계 맞추기','건','fix',r[1],{text:`${r[2]} — ${r[3]} · ${r[4]}`});
+      else if(/^[23]단계/.test(t) && /상신취소돼/.test(r[4]||'')) add('cancel','상신취소 · 새로 내는 등 처리 필요','건','fix',r[1],{d:r[0],t:r[2]});
+      else if(/^2단계/.test(t)) add('sign','신고서 결재 완결 처리','건','fix',r[1],{d:r[0],t:r[2]});
+      else if(/^3단계/.test(t)){
         if(/교외체험학습 현황: 없음/.test(r[3])) add('field','교외체험학습 신청서·보고서 미제출','명','fix',r[1],{d:r[0],t:''});
         else if(/체험기간에 없음/.test(r[3])) add('fielddate','교외체험학습 체험기간 확인','건','fix',r[1],{d:r[0],t:''});
         else if(/출결 현황: 없음/.test(r[3])) add('neis','나이스 일일 출결관리 미반영','건','fix',r[1],{d:r[0],t:'교외체험학습'});
@@ -1738,11 +1749,11 @@ function buildTodo(R){
         else add('fieldsign','교외체험학습 완결 처리','건','fix',r[1],{d:r[0],t:''});
       }
       else if(/^6단계/.test(t)) add('men','생리 한도 초과','명','fix',r[0],{text:r[2]});
-      else if(/^7단계/.test(t)){ const p=String(r[0]).split(' · '); add('reason','사유를 명사형으로 수정','건','fix',p[1]||r[0],{text:`${p[0]} '${String(r[2]).replace('현재 사유: ','')}'`}); }
+      else if(/^기타/.test(t)){ const p=String(r[0]).split(' · '); add('reason','사유를 명사형으로 수정','건','etc',p[1]||r[0],{text:`${p[0]} '${String(r[2]).replace('현재 사유: ','')}'`}); }
     });
   });
-  const rank={fix:0,check:1,note:2};
-  return order.map(k=>groups[k]).sort((a,b)=>rank[a.kind]-rank[b.kind]).map(g=>({
+  const rank={fix:0,check:1,etc:2,note:3};   // 기타(사유 표현)는 처리 건수에서 빼고 뒤로
+  return order.map(k=>groups[k]).sort((a,b)=>(rank[a.kind]-rank[b.kind])||(ACT_ORDER.indexOf(a.cat)-ACT_ORDER.indexOf(b.cat))).map(g=>({
     ...g, count: g.unit==='명'?Object.keys(g.people).length:g.rows,
     items: Object.entries(g.people).map(([who,p])=>({ who,
       what:[p.dated.length?compactDated(p.dated):'', ...p.texts].filter(Boolean).join(' · ') }))
@@ -1752,8 +1763,9 @@ function renderTodo(groups){
   const el=document.getElementById('todoCard'); if(!el) return;
   if(!groups.length){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display='';
-  el.innerHTML='<div class="todo-head">할 일</div>'+groups.map(g=>`
-    <div class="todo-group ${g.kind} act-${g.kind==='note'?'note':g.cat}">
+  let etcShown=false;
+  el.innerHTML='<div class="todo-head">할 일</div>'+groups.map(g=>`${(g.kind==='etc'&&!etcShown&&(etcShown=true))?'<div class="todo-sub">그 밖에 · 처리할 일 건수에는 넣지 않았어요</div>':''}
+    <div class="todo-group ${g.kind} act-${(g.kind==='note'||g.kind==='etc')?'note':g.cat}">
       <div class="tg-head"><span class="tg-title">${escHtml(g.title)}</span><span class="tg-cnt">${g.count}${g.unit}</span></div>
       <ul class="tg-list">${g.items.map(it=>`<li><span class="tg-who">${escHtml(it.who)}</span><span class="tg-what">${escHtml(it.what)}</span></li>`).join('')}</ul>
     </div>`).join('');
@@ -1766,7 +1778,7 @@ const VB_ICON={
 /* ================= 결과 표 표시 — 누가 무엇을 해야 하는지로 색을 나눕니다 =================
    화면에서만 씁니다. sec.rows(엑셀 저장에도 쓰임)는 절대 바꾸지 않습니다. */
 const ACT_LABEL={ file:'파일 확인', student:'학생에게 받기', neis:'나이스 입력·정정', sign:'결재 처리', check:'확인 필요', note:'참고' };
-const ACT_ORDER=['file','student','neis','sign','check','note'];
+const ACT_ORDER=['file','student','sign','neis','check','note'];   // 서류 받기 → 결재 → 나이스 정정 → 확인
 const TODO_CAT={ read:'file', report:'student', field:'student', attach:'student',
   neis:'neis', period:'neis', count:'neis', men:'neis', reason:'neis',
   sign:'sign', cancel:'sign', fieldsign:'sign', fielddate:'check', amb:'check' };
@@ -1775,15 +1787,15 @@ function rowAct(sec,row){
   if(sec.isAmbiguous) return 'check';
   if(/^파일 읽기/.test(t)) return 'file';
   if(/^1단계/.test(t)) return row[3]==='출결 현황: 없음'?'neis':'student';
-  if(/^4단계/.test(t)) return 'sign';
-  if(/^5단계/.test(t)){
+  if(/^2단계/.test(t)) return 'sign';
+  if(/^3단계/.test(t)){
     if(/상신취소돼/.test(last)) return 'sign';
     if(/교외체험학습 현황: 없음|첨부/.test(info)) return 'student';
     if(/체험기간에 없음/.test(info)) return 'check';
     if(/출결 현황: 없음/.test(info)) return 'neis';
     return 'sign';
   }
-  return 'neis';   // 2·3·6·7단계: 나이스(또는 신고서) 기록을 고치는 일
+  return 'neis';   // 4·5·6단계·기타: 나이스(또는 신고서) 기록을 고치는 일
 }
 function cellHtml(sec,row,i,cat){
   const head=sec.cols[i]||'', isLast=i===row.length-1;
@@ -1821,23 +1833,27 @@ function renderResults(R){
     const isOk=failN===0;
     const isAmb=sec.isAmbiguous;
     // 확인 필요 구역은 불일치 총계에 넣지 않음 (참고용)
-    if(!isOk && !sec.optional && !isAmb) totalFail+=failN;
+    if(!isOk && !sec.optional && !isAmb && !sec.isEtc) totalFail+=failN;
 
     const isNote=sec.isNote;
+    const isEtc=sec.isEtc&&!isOk;   // 기타(사유 표현): 할 일엔 남기되 처리 건수에서는 뺍니다
+    // 묶음 제목: 서류 → 나이스 기록 → 그 밖에
+    const grp=/^1단계/.test(sec.title)?'서류':(/^4단계/.test(sec.title)?'나이스 기록':(/^기타/.test(sec.title)?'그 밖에':''));
+    if(grp){ const g1=document.createElement('div'); g1.className='grp-cap'; g1.textContent=grp; sumEl.appendChild(g1); detEl.appendChild(g1.cloneNode(true)); }
     const sr=document.createElement('div'); sr.className='summary-row';
-    const stC=isNote?'note':((sec.optional||isAmb)?'warn':(isOk?'ok':'err'));
-    const stI=(sec.optional)?'—':(isNote?'i':(isAmb?'?':(isOk?'✓':'!')));
+    const stC=(isNote||isEtc)?'note':((sec.optional||isAmb)?'warn':(isOk?'ok':'err'));
+    const stI=(sec.optional)?'—':((isNote||isEtc)?'i':(isAmb?'?':(isOk?'✓':'!')));
     sr.innerHTML=`<span class="st ${stC}">${stI}</span><span class="label">${sec.title}</span>
-      <span class="cnt ${(!isOk&&!isAmb&&!sec.optional)?'bad':''}">${sec.optional?'건너뜀':(isOk?(isAmb?'없음':'이상 없음'):failN+'건')}</span>`;
+      <span class="cnt ${(!isOk&&!isAmb&&!sec.optional&&!isEtc)?'bad':''}">${sec.optional?'건너뜀':(isOk?(isAmb?'없음':'이상 없음'):failN+'건')}</span>`;
     sumEl.appendChild(sr);
 
     const div=document.createElement('div');
     div.className='section'+((isOk||isAmb&&!sec.rows.length)?'':' open');
     // 요약 줄을 누르면 해당 단계가 펼쳐지며 그 자리로 이동합니다 (안내 문구와 실제 동작을 맞춤)
     sr.addEventListener('click',()=>{ div.classList.add('open'); div.scrollIntoView({behavior:'smooth',block:'start'}); });
-    const dotC=isNote?'note':((sec.optional||isAmb)?'warn':(isOk?'ok':'err'));
-    const tagC=isNote?'note':((sec.optional||isAmb)?'warn':(isOk?'ok':'err'));
-    const tagT=sec.optional?'건너뜀':(isAmb?(sec.rows.length?sec.rows.length+(isNote?'건 참고':'건 확인'):'없음'):(isOk?'이상 없음':failN+'건 발견'));
+    const dotC=(isNote||isEtc)?'note':((sec.optional||isAmb)?'warn':(isOk?'ok':'err'));
+    const tagC=(isNote||isEtc)?'note':((sec.optional||isAmb)?'warn':(isOk?'ok':'err'));
+    const tagT=sec.optional?'건너뜀':(isAmb?(sec.rows.length?sec.rows.length+(isNote?'건 참고':'건 확인'):'없음'):(isOk?'이상 없음':failN+(isEtc?'건':'건 발견')));
     let body='';
     if(sec.note) body+=`<div class="empty-ok" style="color:var(--warn)">${sec.note}</div>`;
     if(sec.method) body+=`<div class="method"><b>이렇게 확인했어요</b> · ${sec.method}</div>`;
@@ -1875,6 +1891,8 @@ function renderResults(R){
   renderTodo(todo);
   const fixes=todo.filter(g=>g.kind==='fix');
   const fixLine=fixes.map(g=>`${g.title} ${g.count}${g.unit}`).join(' · ');
+  const etcN=todo.filter(g=>g.kind==='etc').reduce((n,g)=>n+g.count,0);
+  const etcLine=etcN?` · 그 밖에 사유 표현 ${etcN}건`:'';
 
   const banner=document.getElementById('verdictBanner');
   const vbIcon=document.getElementById('vbIcon');
@@ -1884,7 +1902,7 @@ function renderResults(R){
     banner.className='verdict-banner pass';
     vbIcon.innerHTML=VB_ICON.pass;
     vbTitle.className='vb-title pass'; vbTitle.textContent='모든 항목 정상이에요';
-    vbSub.textContent = ambN>0 ? `확인이 필요한 항목 ${ambN}건만 아래에서 봐 주세요` : '출결 파일이 서로 모두 맞아요';
+    vbSub.textContent = (ambN>0 ? `확인이 필요한 항목 ${ambN}건만 아래에서 봐 주세요` : '출결 파일이 서로 모두 맞아요') + etcLine;
   } else {
     banner.className='verdict-banner fail';
     vbIcon.innerHTML=VB_ICON.fail;
@@ -1892,7 +1910,7 @@ function renderResults(R){
     // (신고서 1장, 나이스 입력 1번, 교외체험은 학생 1명 = 신청서 1건. 날짜로 세면 부풀려짐)
     const fixCount = fixes.reduce((n,g)=>n+g.count, 0);
     vbTitle.textContent = fixes.length ? `처리할 일이 ${fixCount}건 있어요` : `확인할 항목이 ${totalFail}건 있어요`;
-    vbSub.textContent = (fixLine || '아래 단계별 결과를 확인해 주세요') + (ambN>0 ? ` · 확인 ${ambN}건` : '');
+    vbSub.textContent = (fixLine || '아래 단계별 결과를 확인해 주세요') + (ambN>0 ? ` · 확인 ${ambN}건` : '') + etcLine;
   }
 
   document.getElementById('viewInput').style.display='none';
@@ -1916,7 +1934,7 @@ function downloadExcel(){
       return;
     }
     const failN=sec.allRows?(sec.failCount||0):sec.rows.length;
-    sum.push([sec.title,'', sec.optional?'—':(failN===0?'✅':'❌'), failN]);
+    sum.push([sec.title,'', sec.optional?'—':(failN===0?'✅':(sec.isEtc?'다듬기':'❌')), failN]);
   });
   const ws1=XLSX.utils.aoa_to_sheet(sum);
   ws1['!cols']=[{wch:30},{wch:30},{wch:8},{wch:12}];
