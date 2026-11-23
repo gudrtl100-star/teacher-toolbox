@@ -342,6 +342,29 @@ td:nth-last-child(2) { min-width:190px; } /* 상태·내용 칸이 눌려서 잘
 .action { color:var(--blue-dark); font-weight:600; }
 .empty-ok { padding:20px; text-align:center; color:var(--ok); font-weight:700; font-size:14px; }
 
+/* 결과 표 — 줄 전체를 칠하지 않습니다. 할 일 종류는 왼쪽 띠와 꼬리표로, 문제는 빠진 칸 하나만 칠해 보여 줍니다.
+   글자 위계: 할 일(진하게) > 이름·유형(보통) > 날짜·근거(연하게) > 번호(작고 연하게) */
+.act-student { --c:#b25000; --cb:#fdf1e3; }   /* 학생에게 받기 */
+.act-neis    { --c:#5e5ce6; --cb:#efeffd; }   /* 나이스 입력·정정 */
+.act-sign    { --c:#1f6fb2; --cb:#e8f1fa; }   /* 결재 처리 */
+.act-check   { --c:#6e6e73; --cb:#f2f2f7; }   /* 확인 필요 */
+.act-file    { --c:#d70015; --cb:#fdecec; }   /* 파일 확인 */
+.act-note    { --c:#aeaeb2; --cb:#f2f2f7; }   /* 참고 */
+table.res tr.act td:first-child { box-shadow: inset 3px 0 0 var(--c); }
+table.res td.date { color:var(--ink-2); font-variant-numeric:tabular-nums; white-space:nowrap; }
+table.res td.who { font-weight:600; white-space:nowrap; }
+table.res td.kind { color:var(--ink); }
+table.res td.info { color:var(--ink-2); }
+table.res .cap { font-size:12px; font-weight:500; color:var(--ink-3); letter-spacing:.01em; margin-right:2px; }
+table.res td.action { color:var(--ink); font-weight:600; letter-spacing:-0.014em; }
+table.res tr.act-note td.action { color:var(--ink-2); font-weight:500; }
+.atag { display:block; width:max-content; margin-bottom:6px; padding:2px 8px; border-radius:6px;
+  font-size:12px; font-weight:600; letter-spacing:.01em; color:var(--c); background:var(--cb); }
+.miss { padding:1px 7px; border-radius:6px; font-weight:700; color:var(--c); background:var(--cb); white-space:nowrap; }
+.todo-group .tg-title::before { content:''; display:inline-block; width:8px; height:8px; border-radius:50%;
+  background:var(--c); margin-right:8px; vertical-align:2px; }
+.todo-group.todo-group .tg-cnt { color:var(--c); }
+
 /* Download */
 .download-row { margin-top:28px; }
 button.dl { width:100%; font-family:inherit; font-size:16px; font-weight:700; letter-spacing:-0.03em;
@@ -1417,6 +1440,13 @@ function validate({ status, absence, late, field, classSum, hasField }){
     // 교외체험학습: 4단계에서 별도 확인 → 제외
     if(isFieldTrip(st.reason) || inFieldPeriod(st)) return;
     const f=reports.find(rp=>rp.name===st.name && rp.date===st.date && rp.cat===baseCategory(st.type));
+    if(!f && /인정/.test(st.type) && /경기|대회|출전|공문/.test(st.reason||'')){
+      // 경기 출전·대회처럼 학교가 공문으로 처리하는 출석인정은 신고서가 없을 수 있습니다 → 미제출이 아니라 확인 안내
+      ambiguous.push([shortDate(st.date), (st.num?st.num+'번 ':'')+st.name, st.type,
+        `출결 현황: ${st.type}(${st.reason}) · 신고서 없음`,
+        `공문으로 처리됐는지 확인 (공문이 없으면 ${st.name} 학생에게 신고서 제출 받기)`]);
+      return;
+    }
     if(!f){
       const row=[shortDate(st.date), (st.num?st.num+'번 ':'')+st.name, st.type,
         `출결 현황: ${st.type}${st.reason?'('+st.reason+')':''}`, '신고서: 미제출',
@@ -1646,7 +1676,7 @@ function compactDated(list){
 function buildTodo(R){
   const groups={}, order=[];
   const add=(key,title,unit,kind,who,entry)=>{
-    if(!groups[key]){ groups[key]={title,unit,kind,rows:0,people:{}}; order.push(key); }
+    if(!groups[key]){ groups[key]={title,unit,kind,rows:0,people:{},cat:TODO_CAT[key]||'check'}; order.push(key); }
     const g=groups[key]; g.rows++;
     const p=g.people[who]||(g.people[who]={dated:[],texts:[]});
     if(entry.text) p.texts.push(entry.text); else p.dated.push(entry);
@@ -1688,7 +1718,7 @@ function renderTodo(groups){
   if(!groups.length){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display='';
   el.innerHTML='<div class="todo-head">할 일</div>'+groups.map(g=>`
-    <div class="todo-group ${g.kind}">
+    <div class="todo-group ${g.kind} act-${g.kind==='note'?'note':g.cat}">
       <div class="tg-head"><span class="tg-title">${escHtml(g.title)}</span><span class="tg-cnt">${g.count}${g.unit}</span></div>
       <ul class="tg-list">${g.items.map(it=>`<li><span class="tg-who">${escHtml(it.who)}</span><span class="tg-what">${escHtml(it.what)}</span></li>`).join('')}</ul>
     </div>`).join('');
@@ -1697,6 +1727,52 @@ const VB_ICON={
   pass:'<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.2 12.3l2.6 2.6 5-5.2"/></svg>',
   fail:'<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8l9 15.6H3z"/><path d="M12 10v4.2M12 16.9v.1"/></svg>',
 };
+
+/* ================= 결과 표 표시 — 누가 무엇을 해야 하는지로 색을 나눕니다 =================
+   화면에서만 씁니다. sec.rows(엑셀 저장에도 쓰임)는 절대 바꾸지 않습니다. */
+const ACT_LABEL={ file:'파일 확인', student:'학생에게 받기', neis:'나이스 입력·정정', sign:'결재 처리', check:'확인 필요', note:'참고' };
+const ACT_ORDER=['file','student','neis','sign','check','note'];
+const TODO_CAT={ read:'file', report:'student', field:'student', attach:'student',
+  neis:'neis', period:'neis', count:'neis', men:'neis', reason:'neis',
+  sign:'sign', cancel:'sign', fieldsign:'sign', fielddate:'check', amb:'check' };
+function rowAct(sec,row){
+  const t=sec.title, info=row.join(' '), last=String(row[row.length-1]||'');
+  if(sec.isAmbiguous) return 'check';
+  if(/^파일 읽기/.test(t)) return 'file';
+  if(/^1단계/.test(t)) return row[3]==='출결 현황: 없음'?'neis':'student';
+  if(/^4단계/.test(t)) return 'sign';
+  if(/^5단계/.test(t)){
+    if(/상신취소돼/.test(last)) return 'sign';
+    if(/교외체험학습 현황: 없음|첨부/.test(info)) return 'student';
+    if(/체험기간에 없음/.test(info)) return 'check';
+    if(/출결 현황: 없음/.test(info)) return 'neis';
+    return 'sign';
+  }
+  return 'neis';   // 2·3·6·7단계: 나이스(또는 신고서) 기록을 고치는 일
+}
+function cellHtml(sec,row,i,cat){
+  const head=sec.cols[i]||'', isLast=i===row.length-1;
+  let c=String(row[i]==null?'':row[i]);
+  if(c.startsWith(head+': ')) c=c.slice(head.length+2);   // 제목 줄과 겹치는 "출결 현황:" 같은 말머리는 화면에서 뺌
+  const miss=s=>`<span class="miss">${s}</span>`;
+  if(isLast){
+    // 이름·번호 칸에 이미 있는 학생 이름은 할 일 문장에서 뺍니다
+    const names=[row[0],row[1]].join(' ').match(/[가-힣]{2,5}/g)||[];
+    names.forEach(nm=>{ if(/^(사유|표현|생리|한도|결석|지각|조퇴|결과|신고서|교외체험학습)$/.test(nm)) return;
+      c=c.split(nm+' 학생에게 ').join('').split(nm+' ').join(''); });
+    const tag=cat==='note'?'':`<span class="atag">${ACT_LABEL[cat]}</span>`;
+    return `<td class="action">${tag}<span class="atext">${escHtml(c).split(' · ').join('<br>')}</span></td>`;
+  }
+  let h=escHtml(c);
+  if(/^(없음|미제출)$/.test(c)) h=miss(c);
+  else h=h.replace(/(: |신고서 )(없음|미제출)(?=$| ·)/g,(m,p,w)=>p+miss(w));
+  h=h.split(' · ').join('<br>');
+  if(i===1 || (i===0 && /^\d{2}\/\d{2} · /.test(String(row[0])))){   // 번호는 작게, 이름은 진하게
+    h=h.replace(/(^|<br>)(\d+번) /,'$1<span class="cap">$2</span> ');
+    return `<td class="who">${h}</td>`;
+  }
+  return `<td class="${i===0?'date':(i===2?'kind':'info')}">${h}</td>`;
+}
 
 /* ================= 결과 렌더 ================= */
 function renderResults(R){
@@ -1732,11 +1808,12 @@ function renderResults(R){
     if(sec.method) body+=`<div class="method"><b>이렇게 확인했어요</b> · ${sec.method}</div>`;
     const showTable=(sec.allRows&&sec.rows.length)||(!sec.allRows&&!isOk);
     if(showTable){
-      body+='<table><thead><tr>'+sec.cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
-      sec.rows.forEach(row=>{
-        const fail=sec.allRows?/❌/.test(row[3]):!isAmb;
-        const warn=isAmb&&!isNote;
-        body+=`<tr class="${warn?'row-warn':(fail?'row-err':'')}">`+row.map((c,i)=>`<td class="${i===row.length-1?'action':''}">${escHtml(c).split(' · ').join('<br>')}</td>`).join('')+'</tr>';
+      body+='<table class="res"><thead><tr>'+sec.cols.map(c=>`<th>${c==='조치 방향'?'할 일':c}</th>`).join('')+'</tr></thead><tbody>';
+      // 화면에서만 할 일 종류끼리 모읍니다 (sec.rows 순서·내용은 엑셀 저장용 그대로)
+      const shown=sec.rows.map(row=>({row,cat:isNote?'note':rowAct(sec,row)}))
+        .sort((a,b)=>ACT_ORDER.indexOf(a.cat)-ACT_ORDER.indexOf(b.cat));
+      shown.forEach(({row,cat})=>{
+        body+=`<tr class="act act-${cat}">`+row.map((c,i)=>cellHtml(sec,row,i,cat)).join('')+'</tr>';
       });
       body+='</tbody></table>';
     }
