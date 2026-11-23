@@ -65,7 +65,7 @@ docs/               기획·운영 문서
 - **자간은 크기마다 다릅니다.** 큰 제목 `-0.038em`, 본문 `-0.006em`, 캡션 `+0.01em`. 전역 `letter-spacing` 하나로 퉁치지 않습니다
 - **줄은 읽는 단위로 바꿉니다.** 어절은 `word-break: keep-all`로 붙이고, 문장이 둘 이상인 문단은 문장마다 `<span>`으로 감싸 `.sentences`를 겁니다(문장째 넘어갑니다). 한 덩어리로 읽히는 말은 `.nowrap`. 한 줄은 한글 25~40자. **글이 길어서 생긴 문제를 CSS로 막지 말고 문장을 줄이세요.** 전체 규칙은 `docs/TOOL_GUIDELINES.md`의 '줄바꿈'에 있습니다
 - **여백은 4의 배수** 토큰(`--s1`~`--s9`)만 씁니다
-- 모션은 `--ease: cubic-bezier(.32,.72,0,1)`, 350~400ms. 버튼은 `:active`에 `scale(.97)`로 **누르는 순간** 반응합니다
+- 모션은 **들어올 때 ease-out(`--ease-out`), 나갈 때 ease-in(`--ease-in`), 0.2~0.4초**. 팝업은 배경을 어둡게 하고 90%→100%로 커지며, 체크 표시는 선이 그려지듯(ease-in-out), 로딩은 linear로 계속 회전, 제목·부제는 한 줄씩 순서대로(stagger). 튕김(스프링)은 즐겨찾기 별에만 씁니다. 버튼은 `:active`에 `scale(.97)`로 **누르는 순간** 반응합니다
 - 시트·팝업은 누른 요소에서 자라나고 같은 자리로 돌아갑니다(`transform-origin`)
 - `prefers-reduced-motion` / `reduced-transparency` / `contrast: more` 대응이 `style.css` 맨 아래 있습니다. 지우면 안 됩니다
 

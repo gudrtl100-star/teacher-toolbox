@@ -328,6 +328,11 @@ function init() {
         : [...state.favs, id];
       save(LS_FAV, state.favs);
       render();
+      /* 즐겨찾기를 켠 순간에만 별이 톡 튕깁니다 (목록을 다시 그렸으므로 새 버튼을 찾습니다) */
+      if (state.favs.includes(id)) {
+        const b = [...list.querySelectorAll('[data-fav]')].find(x => x.dataset.fav === id);
+        if (b) b.classList.add('pop');
+      }
       return;
     }
     const info = e.target.closest('[data-info]');
