@@ -399,6 +399,11 @@ table.res td.who { font-weight:600; white-space:nowrap; }
 table.res td.kind { color:var(--ink); }
 table.res td.info { color:var(--ink-2); }
 table.res .cap { font-size:12px; font-weight:500; color:var(--ink-3); letter-spacing:.01em; margin-right:2px; }
+/* 번호 칸 폭을 고정해 이름 첫 글자가 세로로 맞게 (9번·12번·29번) */
+table.res td.who .cap { display:inline-block; min-width:2.4em; text-align:right; margin-right:2px; font-variant-numeric:tabular-nums; }
+/* 칸 구분: 아주 옅은 세로선 */
+table.res th + th, table.res td + td { border-left:1px solid var(--line-2); }
+table.res th + th { border-left-color:var(--line); }
 table.res td.action { color:var(--ink); font-weight:600; letter-spacing:-0.014em; }
 table.res tr.act-note td.action { color:var(--ink-2); font-weight:500; }
 .atag { display:block; width:max-content; margin-bottom:6px; padding:2px 8px; border-radius:6px;
