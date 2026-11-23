@@ -432,8 +432,8 @@ footer .v { font-weight:700; color:var(--ink-2); }
       <div class="im-files">
         <div class="imf-row"><span class="imf-name">결석신고서</span><span class="imf-fmt xls">엑셀</span></div>
         <div class="imf-row"><span class="imf-name">지각·조퇴·결과신고서</span><span class="imf-fmt xls">엑셀</span></div>
-        <div class="imf-row"><span class="imf-name">출결 현황</span><span class="imf-fmt pdf">PDF</span></div>
-        <div class="imf-row"><span class="imf-name">학급별 출결</span><span class="imf-fmt pdf">PDF</span></div>
+        <div class="imf-row"><span class="imf-name">출결 현황</span><span class="imf-fmt xls">엑셀·PDF</span></div>
+        <div class="imf-row"><span class="imf-name">학급별 출결</span><span class="imf-fmt xls">엑셀·PDF</span></div>
         <div class="imf-row"><span class="imf-name">교외체험학습 현황 <em>· 선택</em></span><span class="imf-fmt xls">엑셀</span></div>
       </div>
     </div>
@@ -477,7 +477,7 @@ footer .v { font-weight:700; color:var(--ink-2); }
       <div class="gstep"><div class="gnum">5</div><div><div class="gt">교외체험학습</div><div class="gd">신청서·보고서 완결, 첨부파일, 출결 기록과 날짜가 맞는지 봐요.</div></div></div>
       <div class="gstep"><div class="gnum">6</div><div><div class="gt">생리 결석 한도</div><div class="gd">생리결석 월 1회, 생리 지각·조퇴·결과 월 3회를 넘지 않았는지 봐요.</div></div></div>
       <div class="gstep"><div class="gnum">7</div><div><div class="gt">사유 표현</div><div class="gd">출결 현황 사유가 "복통"처럼 명사형인지 봐요.</div></div></div>
-      <div class="gfoot"><b>필요한 파일</b> · 나이스에서 내려받기<br>결석신고서 · 지각·조퇴·결과신고서 (엑셀)<br>출결 현황 · 학급별 출결 (PDF)<br>교외체험학습 현황 (엑셀, 선택)</div>
+      <div class="gfoot"><b>필요한 파일</b> · 나이스에서 내려받기<br>결석신고서 · 지각·조퇴·결과신고서 (엑셀)<br>출결 현황 · 학급별 출결 (엑셀 권장, PDF도 가능)<br>교외체험학습 현황 (엑셀, 선택)</div>
     </aside>
    </div>
   </div>
@@ -616,8 +616,8 @@ const uploadsEl = document.getElementById('uploads');
 const SLOT_DEFS = [
   { kind:'absence',  desc:'질병·인정 결석 기록', req:true },
   { kind:'late',     desc:'지각·조퇴·결과 기록', req:true },
-  { kind:'status',   desc:'학생 개별 출결 내역 (PDF 권장)', req:true },
-  { kind:'classsum', desc:'학급별 집계표 (PDF 권장)', req:true },
+  { kind:'status',   desc:'학생 개별 출결 내역 (엑셀 권장 · PDF도 가능)', req:true },
+  { kind:'classsum', desc:'학급별 집계표 (엑셀 권장 · PDF도 가능)', req:true },
   { kind:'field',    desc:'교외체험학습 신청·보고', req:false },
 ];
 uploadsEl.innerHTML = `
@@ -646,7 +646,7 @@ uploadsEl.innerHTML = `
         </div>
         <label class="slot-btn" for="slotfile-${s.kind}" id="slotbtn-${s.kind}">넣기</label>
         <button type="button" class="slot-del" id="slotdel-${s.kind}" aria-label="${KINDS[s.kind]} 빼기" title="빼기" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
-        <input type="file" id="slotfile-${s.kind}" accept="${s.kind==='classsum'?'.pdf':'.xlsx,.xls,.pdf'}" style="display:none">
+        <input type="file" id="slotfile-${s.kind}" accept=".xlsx,.xls,.pdf" style="display:none">
       </div>
     `).join('')}
    </div>
@@ -697,7 +697,6 @@ SLOT_DEFS.forEach(s => {
     const file = e.target.files[0]; if(!file) return;
     // 학급별 슬롯에 엑셀 넣으면 경고 종류로
     let kind = s.kind;
-    if(s.kind==='classsum' && !/\.pdf$/i.test(file.name)) kind='classsum_xlsx';
     uploaded = uploaded.filter(u => !(u.kind===s.kind || (s.kind==='classsum'&&u.kind==='classsum_xlsx')));
     uploaded.push({ file, kind, label: KINDS[kind]||KINDS[s.kind] });
     oddKinds=[];  // 파일 바뀌면 월 경고 초기화
@@ -758,7 +757,7 @@ async function detectKind(file) {
   if (/결석신고/.test(nm)) return 'absence';
   if (/지각|조퇴|결과신고/.test(nm)) return 'late';
   if (/교외체험|체험학습현황/.test(nm)) return 'field';
-  if (/학급별/.test(nm)) return isPdf ? 'classsum' : 'classsum_xlsx';  // 학급별인데 엑셀이면 PDF 요청
+  if (/학급별/.test(nm)) return 'classsum';   // PDF·엑셀 둘 다 읽습니다
   if (/출결현황|출결_현황|월별_출결|월별 출결/.test(nm)) return 'status';
 
   // 2차: 내용으로 판별
@@ -777,8 +776,8 @@ async function detectKind(file) {
       if (/결석신고 구분|결석기간/.test(head)) return 'absence';
       if (/신고종류|접수기간|신고구분/.test(head)) return 'late';
       if (/결시교시|출결구분/.test(head)) return 'status';
-      // 학급별 집계표 엑셀 (병합셀 구조) — PDF로 받아야 정확
-      if (/학급별출결현황|결석총계|지각총계/.test(flat)) return 'classsum_xlsx';
+      // 학급별 집계표 엑셀 (병합셀 구조) — 머리글로 칸을 찾아 읽습니다
+      if (/학급별출결현황|결석총계|지각총계/.test(flat)) return 'classsum';
     }
   } catch (e) { /* 판별 실패 */ }
   return 'unknown';
@@ -1129,6 +1128,44 @@ function parseField(rows){
   }
   return out;
 }
+// 학급별 출결 엑셀 → parseClassSummary(PDF)와 같은 모양 {name:{결석,지각,조퇴,결과,결석총…}} + __meta
+// 칸 위치를 숫자로 박지 않고 머리글(결석·지각·조퇴·결과 / 질병·미인정·기타·인정 / ○○총계)로 찾습니다.
+// 엑셀은 칸이 그대로 있어서 PDF처럼 글자 위치를 추측할 필요가 없습니다.
+function parseClassSummaryXlsx(rows){
+  const T=x=>String(x==null?'':x).replace(/\s+/g,'');
+  const num=x=>{ const v=Number(String(x==null?'':x).replace(/,/g,'').trim()); return isFinite(v)?v:0; };
+  let h=-1;
+  for(let i=0;i<Math.min(rows.length,20);i++){ const r=(rows[i]||[]).map(T); if(r.includes('번호')&&r.includes('성명')){h=i;break;} }
+  if(h<0) throw new Error('학급별 출결 엑셀에서 번호·성명 머리글을 찾지 못했어요');
+  const top=(rows[h]||[]).map(T), sub=(rows[h+1]||[]).map(T);
+  const numCol=top.indexOf('번호'), nameCol=top.indexOf('성명');
+  const CATS=['결석','지각','조퇴','결과'], SUBS=['질병','미인정','기타','인정'];
+  const starts=[]; top.forEach((v,c)=>{ if(CATS.includes(v)) starts.push({c,cat:v}); });
+  const col={}; CATS.forEach(k=>col[k]={});
+  sub.forEach((v,c)=>{ if(!SUBS.includes(v)) return; const g=starts.filter(s=>s.c<=c).pop(); if(g) col[g.cat][v]=c; });
+  const totCol={}; top.forEach((v,c)=>{ const m=v.match(/^(결석|지각|조퇴|결과)총계$/); if(m) totCol[m[1]]=c; });
+  const lost=CATS.flatMap(k=>['질병','미인정','기타'].filter(s=>col[k][s]===undefined).map(s=>k+' '+s));
+  if(lost.length) throw new Error('학급별 출결 엑셀에서 칸을 찾지 못했어요: '+lost.join(', '));
+  const cls={}, roster=[], missed=[], badTotals=[];
+  for(let i=h+2;i<rows.length;i++){
+    const r=rows[i]||[]; const no=String(r[numCol]||'').trim(), name=String(r[nameCol]||'').trim();
+    if(!/^\d+(\.0+)?$/.test(no)) continue;                       // 학생 줄이 아님 (쪽 번호·학교 이름 등)
+    if(!/^[가-힣A-Za-z]/.test(name)){ missed.push(r.filter(x=>String(x).trim()).join(' ')); continue; }
+    const o={};
+    CATS.forEach(k=>{ o[k]=['질병','미인정','기타'].reduce((s,sb)=>s+num(r[col[k][sb]]),0);
+      if(totCol[k]!==undefined) o[k+'총']=num(r[totCol[k]]); });
+    cls[name]=o; roster.push({num:String(parseInt(no,10)), name});
+  }
+  Object.entries(cls).forEach(([nm,o])=>{
+    CATS.forEach(k=>{ if(o[k+'총']!==undefined && o[k]!==o[k+'총']) badTotals.push(`${nm} ${k}: 칸 합 ${o[k]}, 총계 ${o[k+'총']}`); });
+  });
+  try{ Object.defineProperty(cls,'__meta',{value:{roster,missed,badTotals},enumerable:false}); }catch(e){}
+  return cls;
+}
+// 학급별 출결 파일 하나를 읽어 집계로 — PDF면 parseClassSummary, 엑셀이면 parseClassSummaryXlsx
+async function readClassSum(file){
+  return /\.pdf$/i.test(file.name) ? parseClassSummary(await readPdfText(file)) : parseClassSummaryXlsx(await readXlsx(file));
+}
 // 학급별 출결 PDF → {name:{결석,지각,조퇴,결과}} (인정 제외 = 질병+미인정+기타)
 function parseClassSummary(lines){
   const cls={};
@@ -1214,7 +1251,7 @@ async function extractMonths(){
   // 출결현황
   try{ const sf=getFile('status'); if(/\.pdf$/i.test(sf.name)){ const L=await readPdfText(sf); months.status=topMonthFromDates(L); } else { const r=await readXlsx(sf); months.status=topMonthFromDates(r.slice(1).map(x=>x[0])); } }catch(e){}
   // 학급별 PDF: "기간 : YYYY.MM"
-  try{ const L=await readPdfText(getFile('classsum')); const t=L.join(' ').match(/기간\s*:?\s*(\d{4})[.\-](\d{2})/); months.classsum=t?t[1]+'.'+t[2]:null; }catch(e){}
+  try{ const cf=getFile('classsum'); const L=/\.pdf$/i.test(cf.name)?await readPdfText(cf):(await readXlsx(cf)).slice(0,15).map(r=>r.join(' ')); const t=L.join(' ').match(/기간\s*:?\s*(\d{4})[.\-](\d{2})/); months.classsum=t?t[1]+'.'+t[2]:null; }catch(e){}
   // 교외체험: 체험기간
   const ff=getFile('field');
   if(ff){ try{ const r=await readXlsx(ff); let h=0; for(let i=0;i<4;i++){if(/성명/.test(r[i].join(' '))){h=i;break;}} const pc=r[h].findIndex(x=>/신청서 체험기간/.test(String(x))); months.field=topMonthFromDates(r.slice(h+1).map(x=>x[pc])); }catch(e){} }
@@ -1254,7 +1291,7 @@ async function runCheck(skipMonthCheck) {
 
     const absRows=await readXlsx(getFile('absence'));
     const lateRows=await readXlsx(getFile('late'));
-    const classLines=await readPdfText(getFile('classsum'));
+    const classSum=await readClassSum(getFile('classsum'));   // PDF·엑셀 둘 다
     const fieldFile=getFile('field');
     const fieldRows=fieldFile?await readXlsx(fieldFile):null;
 
@@ -1267,7 +1304,6 @@ async function runCheck(skipMonthCheck) {
     const absence=parseAbsence(absRows);
     const late=parseLate(lateRows);
     const field=fieldRows?parseField(fieldRows):[];
-    const classSum=parseClassSummary(classLines);
 
     const R=validate({ status, absence, late, field, classSum, hasField:!!fieldFile });
     window.__lastResult=R;
@@ -1348,7 +1384,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
   if(status.length===0) readChk.push(['—','—','출결현황','한 건도 못 읽었어요','파일·양식 확인 (PDF 손상/양식 상이 가능)']);
   if(roster.length===0) readChk.push(['—','—','학급별 출결','명단을 한 명도 못 읽었어요','파일·양식 확인']);
   (__meta.missed||[]).forEach(t=> readChk.push(['—','—','학급별 출결','못 읽은 줄: '+String(t).slice(0,42),'이 학생 줄이 누락됐을 수 있어요 — 확인']));
-  (__meta.badTotals||[]).forEach(t=> readChk.push(['—','—','학급별 출결','총계가 맞지 않음: '+t,'PDF를 잘못 읽었을 수 있어요 — 원본 PDF와 대조']));
+  (__meta.badTotals||[]).forEach(t=> readChk.push(['—','—','학급별 출결','총계가 맞지 않음: '+t,'파일을 잘못 읽었을 수 있어요 — 원본과 대조']));
   if(roster.length>0 && roster.length<10) readChk.push(['—','—','학급별 출결',`명단이 ${roster.length}명만 읽혔어요`,'반 인원보다 적으면 파일·양식 확인']);
   if(roster.length>=10){
     const seenNm=new Set();
@@ -1474,7 +1510,7 @@ function validate({ status, absence, late, field, classSum, hasField }){
   sections.push({ title:'3단계 · 출결 현황 집계 ↔ 학급별 출결',
     cols:['날짜','이름','유형','출결 현황','학급별 출결','조치 방향'], rows:s3,
     method:'학생별로 인정 제외 출결 건수를 세어 학급별 출결 집계와 일치하는지 대조했어요.', passCols:['이름','집계(결석·지각·조퇴·결과)','판정'], passRows:s3pass,
-    note: Object.keys(classSum).length ? null : '※ 학급별 출결 PDF에서 데이터를 읽지 못했습니다. 수기 확인이 필요합니다.' });
+    note: Object.keys(classSum).length ? null : '※ 학급별 출결 파일에서 데이터를 읽지 못했습니다. 수기 확인이 필요합니다.' });
 
   /* --- 4단계: 교외체험학습 완결·기록 --- */
   const s4=[], s4pass=[];
