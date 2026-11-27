@@ -545,8 +545,11 @@ button .ico{pointer-events:none;}
 
   <!-- 학생 명단 -->
   <div class="tab-pane" id="tp-students">
-    <div class="callout"><strong>학생 명단</strong> — 이름을 추가하면 가나다순으로 정렬되고 번호가 자동으로 매겨져요. 번호는 셀을 클릭해 직접 수정할 수 있어요.</div>
+    <div class="callout"><strong>학생 명단</strong> — 새로 넣은 학생은 맨 뒷번호를 받아요. 기존 학생 번호는 그대로예요. 번호 칸을 눌러 직접 고칠 수 있고, 같은 번호를 적으면 두 학생 번호가 서로 바뀌어요.</div>
     <div class="field-row">
+      <div class="field" style="width:72px;flex:none"><label>번호</label>
+        <input type="number" id="num-in" min="1" max="999" placeholder="1번" onkeydown="if(event.key==='Enter')addName()">
+      </div>
       <div class="field" style="flex:1"><label>이름 직접 추가</label>
         <input type="text" id="name-in" placeholder="이름 입력 후 Enter" maxlength="10" onkeydown="if(event.key==='Enter')addName()">
       </div>
@@ -562,7 +565,10 @@ button .ico{pointer-events:none;}
     <div class="divider"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <div class="sec-eye" style="margin:0;">등록된 학생 <span id="student-count" style="color:var(--blue)">0</span>명</div>
-      <button class="btn btn-ghost btn-sm" onclick="clearStudents()">전체 삭제</button>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm" onclick="renumberByNameAsk()">가나다순 번호 다시 매기기</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearStudents()">전체 삭제</button>
+      </div>
     </div>
     <!-- 학생 테이블 -->
     <div style="overflow-x:auto;">
@@ -1132,10 +1138,26 @@ function addName(){
   const inp=document.getElementById('name-in');
   const name=inp.value.trim();if(!name)return;
   if(S.students.find(s=>s.name===name)){toast('이미 있는 이름이에요','warn');return;}
-  S.students.push({num:0,name,frontRow:false,fixedSeat:null,gender:null});
-  renumberByName();   // 가나다순 정렬 + 번호 자동 재부여
+  // 번호: 적었으면 그 번호, 비워 두면 맨 뒷번호 (전학생은 뒷번호를 받으므로 기존 번호를 건드리지 않습니다)
+  const numEl=document.getElementById('num-in');
+  let num=parseInt(numEl&&numEl.value,10);
+  if(isNaN(num)||num<1) num=nextNum();
+  const dup=S.students.find(s=>s.num===num);
+  if(dup){toast(`${num}번은 ${dup.name} 학생이 쓰고 있어요`,'warn');return;}
+  S.students.push({num,name,frontRow:false,fixedSeat:null,gender:null});
+  sortStudents();
   save();refreshStudentTable();refreshSelects();
-  inp.value='';inp.focus();
+  inp.value='';if(numEl)numEl.value='';updateNumHint();inp.focus();
+}
+// 번호 칸의 안내: 비워 두면 몇 번이 되는지 보여 줍니다
+function updateNumHint(){
+  const el=document.getElementById('num-in'); if(el) el.placeholder=nextNum()+'번';
+}
+function renumberByNameAsk(){
+  if(!S.students.length) return;
+  if(!confirm('이름 가나다순으로 1번부터 번호를 다시 매길까요?\n지금 번호(전학생 뒷번호 등)는 모두 바뀌어요.')) return;
+  renumberByName(); save(); refreshStudentTable(); refreshSelects();
+  toast('가나다순으로 번호를 다시 매겼어요');
 }
 function removeStudent(i){
   const removedName=S.students[i]&&S.students[i].name;
@@ -1152,6 +1174,7 @@ function clearStudents(){
 function refreshStudentTable(){
   const tb=document.getElementById('student-tbody');
   document.getElementById('student-count').textContent=S.students.length;
+  updateNumHint();
   if(!tb)return;
   tb.innerHTML='';
   S.students.forEach((s,i)=>{
@@ -1162,8 +1185,15 @@ function refreshStudentTable(){
     numInp.type='number';numInp.className='num-input';numInp.value=s.num;numInp.min=1;numInp.max=999;
     numInp.onchange=e=>{
       const v=parseInt(e.target.value);
-      if(!isNaN(v)&&v>0){S.students[i].num=v;sortStudents();save();refreshStudentTable();refreshSelects();}
+      if(isNaN(v)||v<1){e.target.value=s.num;return;}
+      if(v===s.num) return;
+      // 같은 번호가 이미 있으면 두 학생 번호를 맞바꿉니다 (번호가 겹치지 않게)
+      const other=S.students.find((st,j)=>j!==i&&st.num===v);
+      if(other){ other.num=s.num; toast(`${other.name} 학생과 번호를 바꿨어요 (${v}번 ↔ ${s.num}번)`); }
+      s.num=v; sortStudents(); save(); refreshStudentTable(); refreshSelects();
     };
+    numInp.onkeydown=e=>{ if(e.key==='Enter') e.target.blur(); };
+    numInp.title='번호를 바꾸려면 눌러서 고치세요';
     tdNum.appendChild(numInp);tr.appendChild(tdNum);
     // 이름 (수동 수정 가능)
     const tdName=document.createElement('td');
